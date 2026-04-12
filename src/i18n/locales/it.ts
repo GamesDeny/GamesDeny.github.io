@@ -1,0 +1,49 @@
+import type { Translations } from "./en";
+
+const it: Translations = {
+  nav: {
+    about: "su di me",
+    projects: "progetti",
+    experience: "esperienza",
+    languages: "linguaggi",
+    contact: "contatti",
+  },
+  hero: {
+    greeting: "> Ciao, sono",
+    tagline: "Ingegnere del Software",
+    bio: "Costruisco software affidabile e scalabile e mi piace risolvere problemi complessi. Appassionato di architettura pulita, strumenti per sviluppatori e trasformazione di idee complesse in sistemi funzionanti.",
+    cta_projects: "vedi progetti",
+    cta_resume: "scarica curriculum",
+  },
+  projects: {
+    title: "progetti",
+    subtitle: "Cose che ho costruito",
+    github: "sorgente",
+    live: "demo",
+    featured: "in evidenza",
+  },
+  experience: {
+    title: "esperienza",
+    subtitle: "Dove ho lavorato",
+    present: "Presente",
+    work: "Lavoro",
+    education: "Istruzione",
+  },
+  languages: {
+    title: "linguaggi",
+    subtitle: "Tecnologie con cui lavoro",
+    expert: "Esperto",
+    proficient: "Competente",
+    familiar: "Familiare",
+    learning: "In apprendimento",
+  },
+  contact: {
+    title: "contatti",
+    subtitle: "Mettiti in contatto",
+    copy_email: "copia email",
+    copied: "copiato!",
+    find_me: "Trovami su",
+  },
+};
+
+export default it;
