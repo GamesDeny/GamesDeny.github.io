@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, FolderGit, Briefcase, Code2, Wrench, Languages, Map, LogOut,
+  LayoutDashboard, FolderGit, Briefcase, Code2, Wrench, Languages, LogOut,
 } from "lucide-react";
 
 const links = [
@@ -13,7 +13,6 @@ const links = [
   { href: "/admin/languages",  label: "languages",   icon: Code2 },
   { href: "/admin/skills",     label: "skills",      icon: Wrench },
   { href: "/admin/i18n",       label: "i18n",        icon: Languages },
-  { href: "/admin/roadmap",    label: "roadmap",     icon: Map },
 ];
 
 export default function AdminSidebar() {

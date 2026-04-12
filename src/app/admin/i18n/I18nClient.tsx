@@ -34,6 +34,7 @@ export default function I18nClient({ locales }: { locales: Locale[] }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [newLocale, setNewLocale] = useState<NewLocale | null>(null);
+  const [missingOnly, setMissingOnly] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   const showToast = (msg: string, type: "success" | "error" = "success") =>
@@ -97,7 +98,15 @@ export default function I18nClient({ locales }: { locales: Locale[] }) {
 
   // ── groups ──────────────────────────────────────────────────────────────────
 
-  const groups = keys.reduce<Record<string, string[]>>((acc, key) => {
+  const isMissing = (key: string) =>
+    locales.some((l) => !allData[l]?.[key]?.trim()) ||
+    (newLocale !== null && !newLocale.data[key]?.trim());
+
+  const missingCount = keys.filter(isMissing).length;
+
+  const visibleKeys = missingOnly ? keys.filter(isMissing) : keys;
+
+  const groups = visibleKeys.reduce<Record<string, string[]>>((acc, key) => {
     const g = key.split(".")[0];
     (acc[g] ??= []).push(key);
     return acc;
@@ -109,9 +118,27 @@ export default function I18nClient({ locales }: { locales: Locale[] }) {
 
   return (
     <div className="pb-16">
-      <div className="mb-8">
-        <p className="text-accent text-sm mb-1">&gt; admin / i18n</p>
-        <h1 className="text-2xl font-bold text-text-primary">translations</h1>
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <p className="text-accent text-sm mb-1">&gt; admin / i18n</p>
+          <h1 className="text-2xl font-bold text-text-primary">translations</h1>
+        </div>
+        {!loading && (
+          <button
+            onClick={() => setMissingOnly((v) => !v)}
+            className={`flex items-center gap-2 border px-4 py-2 text-sm font-mono transition-colors ${
+              missingOnly
+                ? "border-red-400 text-red-400 bg-red-400/10"
+                : "border-border text-muted hover:border-accent/40 hover:text-text-primary"
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${missingOnly ? "bg-red-400" : "bg-muted"}`} />
+            missing only
+            {missingCount > 0 && (
+              <span className="ml-1 text-xs opacity-70">({missingCount})</span>
+            )}
+          </button>
+        )}
       </div>
 
       {loading ? (
