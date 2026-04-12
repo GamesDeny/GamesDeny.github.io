@@ -115,5 +115,9 @@ Thumbs.db
 # Local Netlify folder
 .netlify
 
+# AI files
+AGENTS.md
+CLAUDE.md
+
 # Sentry Config File
 .sentryclirc
