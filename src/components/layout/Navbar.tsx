@@ -6,7 +6,7 @@ import { siteConfig } from "@/config/contact";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const SECTIONS = ["hero", "projects", "experience", "languages", "contact"] as const;
+const SECTIONS = ["hero", "projects", "experience", "languages", "technologies", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
 
 function LocaleDropdown() {
@@ -83,6 +83,7 @@ export default function Navbar() {
     projects: t.nav.projects,
     experience: t.nav.experience,
     languages: t.nav.languages,
+    technologies: t.nav.technologies,
     contact: t.nav.contact,
   };
 

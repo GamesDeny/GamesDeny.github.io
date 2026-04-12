@@ -1,28 +1,11 @@
 [
   {
-    "id": "project-one",
-    "name": "project-one",
-    "description": "A brief description of what this project does and the problem it solves.",
-    "techStack": ["TypeScript", "Node.js", "PostgreSQL", "Docker"],
-    "githubUrl": "https://github.com/yourhandle/project-one",
-    "liveUrl": "https://project-one.vercel.app",
-    "featured": true
-  },
-  {
-    "id": "project-two",
-    "name": "project-two",
-    "description": "Another project description. What makes it interesting, what you learned.",
-    "techStack": ["Python", "FastAPI", "Redis"],
-    "githubUrl": "https://github.com/yourhandle/project-two",
-    "featured": false
-  },
-  {
-    "id": "project-three",
-    "name": "project-three",
-    "description": "A third project. Keep descriptions concise and punchy.",
-    "techStack": ["Go", "gRPC", "Kubernetes"],
-    "githubUrl": "https://github.com/yourhandle/project-three",
-    "liveUrl": "https://project-three.example.com",
+    "id": "ELISHOP",
+    "name": "EliShop",
+    "description": "Bachelor's thesis project: an e-commerce platform for ELIS students to buy and sell used items.",
+    "techStack": ["Java", "SpringBoot", "MySQL"],
+    "githubUrl": "https://github.com/GamesDeny/eshopELIS",
+    "liveUrl": null,
     "featured": false
   }
 ]

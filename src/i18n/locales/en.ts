@@ -4,6 +4,7 @@ export interface Translations {
     projects: string;
     experience: string;
     languages: string;
+    technologies: string;
     contact: string;
   };
   hero: {
@@ -35,6 +36,10 @@ export interface Translations {
     familiar: string;
     learning: string;
   };
+  technologies: {
+    title: string;
+    subtitle: string;
+  };
   contact: {
     title: string;
     subtitle: string;
@@ -50,6 +55,7 @@ const en: Translations = {
     projects: "projects",
     experience: "experience",
     languages: "languages",
+    technologies: "technologies",
     contact: "contact",
   },
   hero: {
@@ -80,6 +86,10 @@ const en: Translations = {
     proficient: "Proficient",
     familiar: "Familiar",
     learning: "Learning",
+  },
+  technologies: {
+    title: "technologies",
+    subtitle: "Skills from my work experience",
   },
   contact: {
     title: "contact",

@@ -1,29 +1,44 @@
 [
   {
-    "id": "acme-corp-swe",
-    "company": "Acme Corp",
-    "role": "Senior Software Engineer",
-    "startDate": "Jan 2023",
+    "id": "Soldo",
+    "company": "Soldo",
+    "role": "Software Engineer",
+    "startDate": "10-2025",
     "endDate": null,
-    "location": "Remote",
+    "location": "Hybrid (Rome) - 1 day/week",
     "bullets": [
-      "Built distributed event pipeline processing 10M+ events/day",
-      "Led migration from REST to GraphQL, reducing over-fetching by 40%",
-      "Mentored 3 junior engineers and led weekly architecture reviews"
+      "Development and research of architectural solutions for the development of new features",
+      "Creation of asynchronous flows to generate reports",
+      "Maintenance and improvement of products"
     ],
-    "skills": ["TypeScript", "Kafka", "GraphQL", "AWS"]
+    "skills": ["Java", "SpringBoot", "MySQL", "K8s", "AWS", "Kubernetes", "Docker", "Kafka", "Shedlock"]
   },
   {
-    "id": "startup-xyz-swe",
-    "company": "Startup XYZ",
-    "role": "Software Engineer",
-    "startDate": "Mar 2021",
-    "endDate": "Dec 2022",
-    "location": "Milan, Italy",
+    "id": "Alten ITALIA",
+    "company": "Alten ITALIA - Soldo",
+    "role": "Junior Software Engineer",
+    "startDate": "02-2023",
+    "endDate": "10-2025",
+    "location": "Remote (Rome)",
     "bullets": [
-      "Developed core API powering the main product used by 50k+ users",
-      "Reduced p99 latency from 800ms to 120ms through query optimization"
+      "Refactor of legacy code and improvement",
+      "Flow improvement and bug fixing of the main product",
+      "Generation of statement reports in different formats: PDF, CSV, XLSX, OFX, QIF, ZIP"
     ],
-    "skills": ["Python", "Django", "PostgreSQL", "Redis"]
+    "skills": ["Java", "Spring", "SpringBoot", "MySQL", "AWS", "Kubernetes", "Docker"]
+  },
+  {
+    "id": "Alten ITALIA",
+    "company": "Alten ITALIA - Sisal",
+    "role": "Junior Software Engineer",
+    "startDate": "08-2022",
+    "endDate": "02-2023",
+    "location": "Hybrid (Rome) - 2 days/week",
+    "bullets": [
+      "Implementation of API",
+      "Solution reasearch for memory optimization and performance improvement of an OCR system",
+      "Stress testing and performance monitoring of the system in production"
+    ],
+    "skills": ["Java", "SpringBoot", "MySQL", "AWS", "Kubernetes", "Docker"]
   }
 ]

@@ -6,6 +6,7 @@ const it: Translations = {
     projects: "progetti",
     experience: "esperienza",
     languages: "linguaggi",
+    technologies: "tecnologie",
     contact: "contatti",
   },
   hero: {
@@ -36,6 +37,10 @@ const it: Translations = {
     proficient: "Competente",
     familiar: "Familiare",
     learning: "In apprendimento",
+  },
+  technologies: {
+    title: "tecnologie",
+    subtitle: "Competenze dalle mie esperienze lavorative",
   },
   contact: {
     title: "contatti",

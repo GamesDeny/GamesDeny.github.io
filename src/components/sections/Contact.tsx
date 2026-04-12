@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useI18n } from "@/i18n";
-import { contact } from "@/config/contact";
+import { contact, siteConfig } from "@/config/contact";
 import SectionTitle from "@/components/ui/SectionTitle";
 import SocialLink from "@/components/ui/SocialLink";
-import { GitFork, Link, Camera, Layers, Mail, Copy, Check } from "lucide-react";
+import { GitFork, Link, Camera, Layers, Map, Mail, Copy, Check } from "lucide-react";
 
 export default function Contact() {
   const { t } = useI18n();
@@ -18,11 +18,16 @@ export default function Contact() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const roadmapUrl = siteConfig.roadmapUsername
+    ? `https://roadmap.sh/u/${siteConfig.roadmapUsername}`
+    : null;
+
   const socialLinks = [
     contact.social.github && { href: contact.social.github, label: "GitHub", icon: <GitFork size={16} /> },
     contact.social.linkedin && { href: contact.social.linkedin, label: "LinkedIn", icon: <Link size={16} /> },
     contact.social.instagram && { href: contact.social.instagram, label: "Instagram", icon: <Camera size={16} /> },
     contact.social.stackoverflow && { href: contact.social.stackoverflow, label: "Stack Overflow", icon: <Layers size={16} /> },
+    roadmapUrl && { href: roadmapUrl, label: "roadmap.sh", icon: <Map size={16} /> },
   ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
 
   return (

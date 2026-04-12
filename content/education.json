@@ -1,12 +1,22 @@
 [
   {
-    "id": "univ-example",
-    "institution": "University of Example",
-    "degree": "B.S.",
+    "id": "Magistrale",
+    "institution": "Uninettuno",
+    "degree": "Master's Degree",
+    "field": "Computer Science - Programming and Security",
+    "startDate": "10-2022",
+    "endDate": "04-2025",
+    "gpa": "90/110",
+    "notes": ["Thesis on customizable pipeline parallelism for statement report generation"]
+  },
+  {
+    "id": "Triennale",
+    "institution": "Politecnico di Milano",
+    "degree": "Bachelor's Degree",
     "field": "Computer Science",
-    "startDate": "2017",
-    "endDate": "2021",
-    "gpa": "110/110",
-    "notes": ["Thesis on distributed systems fault tolerance"]
+    "startDate": "09-2019",
+    "endDate": "09-2022",
+    "gpa": "98/110",
+    "notes": ["Shop for ELIS inventory management"]
   }
 ]
