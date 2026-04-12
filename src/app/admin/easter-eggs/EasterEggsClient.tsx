@@ -42,6 +42,12 @@ const EGGS: EggDef[] = [
     description: "Hold Space for 2.5s to unleash matrix rain made of your tech stack with a retro boombox playing procedural synthwave (Web Audio API, no files).",
     trigger: "hold Space for 2.5 seconds",
   },
+  {
+    key: "thisIsFine",
+    label: "this is fine",
+    description: "Switch between sections 5 times in under 3 seconds to trigger a Doom-style fire rising from the bottom, the dog sitting calmly with his coffee.",
+    trigger: "5 section switches within 3 seconds",
+  },
 ];
 
 export default function EasterEggsClient({ initial }: { initial: EasterEggsConfig }) {

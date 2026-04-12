@@ -32,7 +32,7 @@ export async function getRoadmapConfig(): Promise<RoadmapConfig> {
   return { username: siteConfig.roadmapUsername };
 }
 
-const _easterEggs: EasterEggsConfig = { forkBomb: true, doomMode: true, legoTardis: true, cookingTimer: true, musicMode: true };
+const _easterEggs: EasterEggsConfig = { forkBomb: true, doomMode: true, legoTardis: true, cookingTimer: true, musicMode: true, thisIsFine: true };
 
 export async function getEasterEggs(): Promise<EasterEggsConfig> {
   return readJSON<EasterEggsConfig>(contentPath("easter-eggs.json"), _easterEggs);

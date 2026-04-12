@@ -27,6 +27,11 @@ const it: Translations = {
     music: {
       stop: "premi un tasto per fermare_",
     },
+    thisIsFine: {
+      fine: "Va tutto bene.",
+      caption: "Deploy in produzione di venerdì.",
+      continue: "premi un tasto per continuare_",
+    },
   },
   nav: {
     about: "su di me",

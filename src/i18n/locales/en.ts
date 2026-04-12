@@ -25,6 +25,11 @@ export interface Translations {
     music: {
       stop: string;
     };
+    thisIsFine: {
+      fine: string;
+      caption: string;
+      continue: string;
+    };
   };
   nav: {
     about: string;
@@ -102,6 +107,11 @@ const en: Translations = {
     },
     music: {
       stop: "press any key to stop_",
+    },
+    thisIsFine: {
+      fine: "This is fine.",
+      caption: "Deploying to prod on a Friday.",
+      continue: "press any key to continue_",
     },
   },
   nav: {

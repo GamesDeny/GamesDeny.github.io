@@ -66,6 +66,7 @@ export interface EasterEggsConfig {
   legoTardis: boolean;
   cookingTimer: boolean;
   musicMode: boolean;
+  thisIsFine: boolean;
 }
 
 export interface PersonalInfo {
