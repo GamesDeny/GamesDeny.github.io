@@ -22,6 +22,9 @@ export interface Translations {
       ready: string;
       continue: string;
     };
+    music: {
+      stop: string;
+    };
   };
   nav: {
     about: string;
@@ -96,6 +99,9 @@ const en: Translations = {
       dinner: "Dinner",
       ready: "{meal}-ms is ready to be served",
       continue: "press any key to continue_",
+    },
+    music: {
+      stop: "press any key to stop_",
     },
   },
   nav: {

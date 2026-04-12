@@ -2,5 +2,6 @@
   "forkBomb": true,
   "doomMode": true,
   "legoTardis": true,
-  "cookingTimer": true
+  "cookingTimer": true,
+  "musicMode": true
 }

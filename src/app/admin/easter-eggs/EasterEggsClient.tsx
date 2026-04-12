@@ -36,6 +36,12 @@ const EGGS: EggDef[] = [
     description: "Move your mouse in 3 full circles to spin a pizza, twirl the screen, then countdown 3s before revealing pizza & spaghetti.",
     trigger: "3 full mouse circles (consistent direction)",
   },
+  {
+    key: "musicMode",
+    label: "matrix boombox",
+    description: "Hold Space for 2.5s to unleash matrix rain made of your tech stack with a retro boombox playing procedural synthwave (Web Audio API, no files).",
+    trigger: "hold Space for 2.5 seconds",
+  },
 ];
 
 export default function EasterEggsClient({ initial }: { initial: EasterEggsConfig }) {

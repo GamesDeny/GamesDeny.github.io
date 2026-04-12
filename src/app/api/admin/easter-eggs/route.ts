@@ -5,7 +5,7 @@ import { readJSON, writeJSON, contentPath } from "@/lib/admin/content";
 import type { EasterEggsConfig } from "@/types";
 
 const FILE = contentPath("easter-eggs.json");
-const SEED: EasterEggsConfig = { forkBomb: true, doomMode: true, legoTardis: true, cookingTimer: true };
+const SEED: EasterEggsConfig = { forkBomb: true, doomMode: true, legoTardis: true, cookingTimer: true, musicMode: true };
 
 function load(): EasterEggsConfig {
   return readJSON<EasterEggsConfig>(FILE, SEED);

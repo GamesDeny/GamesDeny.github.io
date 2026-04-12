@@ -24,6 +24,9 @@ const it: Translations = {
       ready: "{meal}-ms è pronto per essere servito",
       continue: "premi un tasto per continuare_",
     },
+    music: {
+      stop: "premi un tasto per fermare_",
+    },
   },
   nav: {
     about: "su di me",

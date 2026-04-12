@@ -7,6 +7,7 @@ import Technologies from "@/components/sections/Technologies";
 import Contact from "@/components/sections/Contact";
 import ForkBomb from "@/components/easter-eggs/ForkBomb";
 import CookingTimer from "@/components/easter-eggs/CookingTimer";
+import MatrixBoombox from "@/components/easter-eggs/MatrixBoombox";
 
 export default async function Page() {
   const [projects, experience, education, languages, easterEggs] = await Promise.all([
@@ -27,6 +28,7 @@ export default async function Page() {
       <Contact />
       {easterEggs.forkBomb && <ForkBomb />}
       {easterEggs.cookingTimer && <CookingTimer />}
+      {easterEggs.musicMode && <MatrixBoombox />}
     </>
   );
 }
