@@ -9,7 +9,7 @@ interface BulkActionBarProps {
   onClear: () => void;
 }
 
-export default function BulkActionBar({ count, onEdit, onDelete, onClear }: BulkActionBarProps) {
+export default function BulkActionBar({ count, onEdit, onDelete, onClear }: Readonly<BulkActionBarProps>) {
   if (count === 0) return null;
 
   return (

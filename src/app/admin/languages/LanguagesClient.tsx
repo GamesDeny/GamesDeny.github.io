@@ -13,10 +13,10 @@ const EMPTY: Language = { name: "", proficiency: "Familiar", percentage: 50 };
 
 async function runBulk<T>(items: T[], fn: (item: T) => Promise<Response>) {
   const results = await Promise.allSettled(items.map(fn));
-  return items.filter((_, i) => results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<Response>).value.ok);
+  return items.filter((_, i) => results[i].status === "fulfilled" && results[i].value.ok);
 }
 
-export default function LanguagesClient({ initial }: { initial: Language[] }) {
+export default function LanguagesClient({ initial }: Readonly<{ initial: Language[] }>) {
   const [languages, setLanguages] = useState(initial);
 
   // row-level

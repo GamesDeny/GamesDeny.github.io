@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useI18n, availableLocales, type Locale } from "@/i18n";
+import { useI18n, availableLocales } from "@/i18n";
 import { siteConfig } from "@/config/contact";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";

@@ -8,16 +8,25 @@ interface BadgeProps {
   color?: string;
 }
 
-export default function Badge({ label, variant = "default", className, color }: BadgeProps) {
+export default function Badge({ label, variant = "default", className, color }: Readonly<BadgeProps>) {
+  let res = "";
+  if(color) {
+    switch(variant) {
+      case "accent":
+        res = "bg-surface text-accent border-accent/40";
+        break;
+      case "default":
+      default:
+        res = "bg-surface text-text-secondary border-border";
+        break;
+    }
+  }
+
   return (
     <span
       className={cn(
         "inline-block px-2 py-0.5 text-xs font-mono rounded border",
-        color
-          ? ""
-          : variant === "default"
-          ? "bg-surface text-text-secondary border-border"
-          : "bg-surface text-accent border-accent/40",
+        res,
         className
       )}
       style={

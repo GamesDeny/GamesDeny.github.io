@@ -6,7 +6,7 @@ interface ConfirmModalProps {
   onCancel: () => void;
 }
 
-export default function ConfirmModal({ message, onConfirm, onCancel }: ConfirmModalProps) {
+export default function ConfirmModal({ message, onConfirm, onCancel }: Readonly<ConfirmModalProps>) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="border border-border bg-surface p-6 max-w-sm w-full font-mono">

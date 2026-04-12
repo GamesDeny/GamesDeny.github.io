@@ -6,7 +6,7 @@ interface SocialLinkProps {
   icon: ReactNode;
 }
 
-export default function SocialLink({ href, label, icon }: SocialLinkProps) {
+export default function SocialLink({ href, label, icon }: Readonly<SocialLinkProps>) {
   return (
     <a
       href={href}

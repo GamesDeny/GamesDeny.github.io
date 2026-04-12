@@ -12,7 +12,7 @@ interface ExperienceProps {
   education: EducationEntry[];
 }
 
-export default function Experience({ experience, education }: ExperienceProps) {
+export default function Experience({ experience, education }: Readonly<ExperienceProps>) {
   const { t, locale } = useI18n();
 
   return (
@@ -20,13 +20,14 @@ export default function Experience({ experience, education }: ExperienceProps) {
       <div className="max-w-3xl mx-auto">
         <SectionTitle title={t.experience.title} subtitle={t.experience.subtitle} />
 
+        /* TODO refactor this because entry.id may not be reliable */
         {/* Work */}
         <h3 className="text-xs font-mono text-muted uppercase tracking-widest mb-8">
           {t.experience.work}
         </h3>
         <div className="relative border-l border-accent/20 pl-8 space-y-12 mb-16">
           {experience.map((entry, i) => (
-            <div key={i} className="relative">
+            <div key={entry.id} className="relative">
               {/* Timeline dot */}
               <div className="absolute -left-[2.15rem] top-1.5 w-3 h-3 rounded-full border-2 border-accent bg-background" />
 
@@ -47,7 +48,7 @@ export default function Experience({ experience, education }: ExperienceProps) {
 
               <ul className="space-y-1.5 mb-4">
                 {localizedArray(entry.bullets, locale).map((b, j) => (
-                  <li key={j} className="font-mono text-sm text-text-secondary flex gap-2">
+                  <li key={entry.id} className="font-mono text-sm text-text-secondary flex gap-2">
                     <span className="text-accent shrink-0">–</span>
                     {b}
                   </li>
@@ -71,8 +72,8 @@ export default function Experience({ experience, education }: ExperienceProps) {
           {t.experience.education}
         </h3>
         <div className="relative border-l border-accent/20 pl-8 space-y-12">
-          {education.map((entry, i) => (
-            <div key={i} className="relative">
+          {education.map((entry) => (
+            <div key={entry.id} className="relative">
               <div className="absolute -left-[2.15rem] top-1.5 w-3 h-3 rounded-full border-2 border-accent bg-background" />
 
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 mb-2">
@@ -95,7 +96,7 @@ export default function Experience({ experience, education }: ExperienceProps) {
               {entry.notes && (
                 <ul className="space-y-1.5">
                   {localizedArray(entry.notes, locale).map((n, j) => (
-                    <li key={j} className="font-mono text-sm text-text-secondary flex gap-2">
+                    <li key={entry.id} className="font-mono text-sm text-text-secondary flex gap-2">
                       <span className="text-accent shrink-0">–</span>
                       {n}
                     </li>

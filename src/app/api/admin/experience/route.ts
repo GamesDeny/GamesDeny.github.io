@@ -4,7 +4,7 @@ import { verifySession } from "@/lib/admin/auth";
 import { readJSON, writeJSON, contentPath } from "@/lib/admin/content";
 import type { WorkEntry } from "@/types";
 import _seed from "@/data/experience";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 const FILE = contentPath("experience.json");
 

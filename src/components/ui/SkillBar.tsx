@@ -6,7 +6,7 @@ interface SkillBarProps {
   percentage: number;
 }
 
-export default function SkillBar({ percentage }: SkillBarProps) {
+export default function SkillBar({ percentage }: Readonly<SkillBarProps>) {
   const [filled, setFilled] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

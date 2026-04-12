@@ -5,7 +5,7 @@ interface TerminalPromptProps {
   className?: string;
 }
 
-export default function TerminalPrompt({ text, className }: TerminalPromptProps) {
+export default function TerminalPrompt({ text, className }: Readonly<TerminalPromptProps>) {
   return (
     <span className={cn("font-mono", className)}>
       <span className="text-accent">&gt; </span>

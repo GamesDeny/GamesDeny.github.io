@@ -3,7 +3,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export const metadata = { title: "Admin — portfolio" };
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default function AdminLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div className="min-h-screen bg-background text-text-primary font-mono flex">
       <AdminSidebar />

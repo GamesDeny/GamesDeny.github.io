@@ -13,7 +13,7 @@ interface TagEntry {
   count: number;
 }
 
-function TechIcon({ path, hex, size = 20 }: { path: string; hex: string; size?: number }) {
+function TechIcon({ path, hex, size = 20 }: Readonly<{ path: string; hex: string; size?: number }>) {
   return (
     <svg
       role="img"
@@ -28,7 +28,7 @@ function TechIcon({ path, hex, size = 20 }: { path: string; hex: string; size?: 
   );
 }
 
-export default function Technologies({ experience }: TechnologiesProps) {
+export default function Technologies({ experience }: Readonly<TechnologiesProps>) {
   // Count how many experience entries each tag appears in
   const countMap = new Map<string, number>();
   for (const entry of experience) {

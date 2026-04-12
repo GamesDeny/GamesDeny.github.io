@@ -1,5 +1,36 @@
 [
   {
+    "id": "startup-compose",
+    "name": {
+      "en": "Startup Compose",
+      "it": "Startup Compose"
+    },
+    "description": {
+      "en": "Docker compose for startup projects. Contains all the stack with the most common used technologies and tools to manage the project and the processes.",
+      "it": "Docker compose per progetti startup. Contiene tutto lo stack con le tecnologie e gli strumenti più comunemente usati per gestire il progetto e i processi."
+    },
+    "techStack": [
+      "Jira",
+      "Gitlab",
+      "Jenkins",
+      "Nexus",
+      "MySQL",
+      "MongoDB",
+      "PostgreSQL",
+      "Redis",
+      "Elasticsearch",
+      "Docker",
+      "Kubernetes",
+      "Keycloak",
+      "Kafka",
+      "ZooKeeper",
+      "Kafka-ui"
+    ],
+    "githubUrl": null,
+    "liveUrl": null,
+    "featured": false
+  },
+  {
     "id": "ELISHOP",
     "name": {
       "en": "EliShop",

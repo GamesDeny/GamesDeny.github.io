@@ -59,11 +59,11 @@ export default function ProjectsClient({
   initial,
   locales,
   allTags,
-}: {
+}: Readonly<{
   initial: Project[];
   locales: string[];
   allTags: string[];
-}) {
+}>) {
   const [projects, setProjects] = useState(initial);
 
   // row-level

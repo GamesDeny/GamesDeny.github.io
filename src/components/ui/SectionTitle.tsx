@@ -3,7 +3,7 @@ interface SectionTitleProps {
   subtitle?: string;
 }
 
-export default function SectionTitle({ title, subtitle }: SectionTitleProps) {
+export default function SectionTitle({ title, subtitle }: Readonly<SectionTitleProps>) {
   return (
     <div className="mb-12">
       <h2 className="text-3xl font-mono font-bold">

@@ -5,7 +5,7 @@ interface RoadmapProps {
   username: string;
 }
 
-export default function Roadmap({ username }: RoadmapProps) {
+export default function Roadmap({ username }: Readonly<RoadmapProps>) {
   if (!username) return null;
 
   const profileUrl = `https://roadmap.sh/u/${username}`;

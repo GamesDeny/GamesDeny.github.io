@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(false);
@@ -36,18 +36,19 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs text-muted mb-1">password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60 transition-colors"
-              autoFocus
-            />
+            <label className="block text-xs text-muted mb-1">
+              password<input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60 transition-colors"
+                autoFocus
+              />
+            </label>
           </div>
 
           {error && (
-            <p className="text-xs text-red-400 font-mono">// access denied</p>
+            <p className="text-xs text-red-400 font-mono">{/* access denied */}</p>
           )}
 
           <button

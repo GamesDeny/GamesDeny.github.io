@@ -13,7 +13,7 @@ interface HeroProps {
   legoTardisEnabled?: boolean;
 }
 
-export default function Hero({ doomModeEnabled = false, legoTardisEnabled = false }: HeroProps) {
+export default function Hero({ doomModeEnabled = false, legoTardisEnabled = false }: Readonly<HeroProps>) {
   const { t } = useI18n();
   const [imgError, setImgError] = useState(false);
 

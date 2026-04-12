@@ -1,10 +1,10 @@
 [
-  { "name": "Docker",     "proficiency": "Expert",     "percentage": 85 },
-  { "name": "Kubernetes", "proficiency": "Proficient", "percentage": 70 },
-  { "name": "AWS",        "proficiency": "Proficient", "percentage": 65 },
-  { "name": "Kafka",      "proficiency": "Proficient", "percentage": 70 },
-  { "name": "Spring",     "proficiency": "Expert",     "percentage": 90 },
-  { "name": "SpringBoot", "proficiency": "Expert",     "percentage": 90 },
-  { "name": "MySQL",      "proficiency": "Expert",     "percentage": 85 },
-  { "name": "Shedlock",   "proficiency": "Familiar",   "percentage": 50 }
+  { "name": "Docker",     "proficiency": "Basic",     "percentage": 85 },
+  { "name": "Kubernetes", "proficiency": "Familiar", "percentage": 70 },
+  { "name": "AWS",        "proficiency": "Basic", "percentage": 65 },
+  { "name": "Kafka",      "proficiency": "Basic", "percentage": 70 },
+  { "name": "Spring",     "proficiency": "Familiar",     "percentage": 90 },
+  { "name": "SpringBoot", "proficiency": "Familiar",     "percentage": 90 },
+  { "name": "MySQL",      "proficiency": "Familiar",     "percentage": 85 },
+  { "name": "Shedlock",   "proficiency": "Basic",   "percentage": 50 }
 ]

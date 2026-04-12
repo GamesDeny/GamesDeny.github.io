@@ -9,7 +9,7 @@ interface ProjectsProps {
   projects: Project[];
 }
 
-export default function Projects({ projects }: ProjectsProps) {
+export default function Projects({ projects }: Readonly<ProjectsProps>) {
   const { t } = useI18n();
 
   return (

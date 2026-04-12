@@ -10,7 +10,7 @@ interface SaveToastProps {
   offsetBottom?: boolean;
 }
 
-export default function SaveToast({ message, type = "success", onDismiss, offsetBottom }: SaveToastProps) {
+export default function SaveToast({ message, type = "success", onDismiss, offsetBottom }: Readonly<SaveToastProps>) {
   useEffect(() => {
     const t = setTimeout(onDismiss, 3000);
     return () => clearTimeout(t);

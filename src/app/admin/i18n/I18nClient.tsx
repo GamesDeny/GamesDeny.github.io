@@ -28,7 +28,7 @@ interface NewLocale {
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export default function I18nClient({ locales }: { locales: Locale[] }) {
+export default function I18nClient({ locales }: Readonly<{ locales: Locale[] }>) {
   const [allData, setAllData] = useState<Record<string, Record<string, string>>>({});
   const [keys, setKeys] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);

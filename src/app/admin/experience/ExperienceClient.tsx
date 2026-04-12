@@ -12,7 +12,7 @@ import { Plus, Pencil, Trash2, X } from "lucide-react";
 
 async function runBulk<T>(items: T[], fn: (item: T) => Promise<Response>) {
   const results = await Promise.allSettled(items.map(fn));
-  return items.filter((_, i) => results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<Response>).value.ok);
+  return items.filter((_, i) => results[i].status === "fulfilled" && results[i].value.ok);
 }
 
 function emptyLocalized(locales: string[]): LocalizedString {
@@ -115,12 +115,12 @@ export default function ExperienceClient({
   initialEducation,
   locales,
   allTags,
-}: {
+}: Readonly<{
   initialExperience: WorkEntry[];
   initialEducation: EducationEntry[];
   locales: string[];
   allTags: string[];
-}) {
+}>) {
   const displayLocale = locales.includes("en") ? "en" : locales[0];
 
   const [tab, setTab] = useState<"work" | "education">("work");

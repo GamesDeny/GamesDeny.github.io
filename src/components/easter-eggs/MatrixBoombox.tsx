@@ -12,13 +12,13 @@ const BAR  = BEAT * 4;     // 1.875 s per bar
 
 // Note frequencies (Hz)
 const N: Record<string, number> = {
-  F2:  87.31, G2:  98.00,  A2: 110.00,
-  C3: 130.81, E3: 164.81, F3: 174.61, G3: 196.00,
-  A3: 220.00, B3: 246.94,
-  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
-  A4: 440.00, B4: 493.88,
-  C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 784.00,
-  A5: 880.00,
+  F2:  87.31, G2:  98,  A2: 110,
+  C3: 130.81, E3: 164.81, F3: 174.61, G3: 196,
+  A3: 220, B3: 246.94,
+  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392,
+  A4: 440, B4: 493.88,
+  C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 784,
+  A5: 880,
 };
 
 // Chord progression: Am – F – C – G
@@ -212,11 +212,11 @@ export default function MatrixBoombox() {
       setHoldPct(0);
     };
 
-    window.addEventListener("keydown", onDown);
-    window.addEventListener("keyup",   onUp);
+    globalThis.addEventListener("keydown", onDown);
+    globalThis.addEventListener("keyup",   onUp);
     return () => {
-      window.removeEventListener("keydown", onDown);
-      window.removeEventListener("keyup",   onUp);
+      globalThis.removeEventListener("keydown", onDown);
+      globalThis.removeEventListener("keyup",   onUp);
       if (holdTimerRef.current) clearInterval(holdTimerRef.current);
     };
   }, [active]);
@@ -291,14 +291,15 @@ export default function MatrixBoombox() {
 
     // EQ animation loop
     const freq = new Uint8Array(analyser.frequencyBinCount);
-    const tick = () => {
-      analyser.getByteFrequencyData(freq);
-      const bars = Array.from({ length: 12 }, (_, i) => {
+    const barsFun = (_:any, i:number) => {
         const lo  = Math.floor(i * freq.length / 12);
         const hi  = Math.floor((i + 1) * freq.length / 12);
         const avg = freq.slice(lo, hi).reduce((a, b) => a + b, 0) / Math.max(hi - lo, 1);
         return avg / 255;
-      });
+      };
+    const tick = () => {
+      analyser.getByteFrequencyData(freq);
+      const bars = Array.from({ length: 12 }, barsFun);
       setEqBars(bars);
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -316,13 +317,13 @@ export default function MatrixBoombox() {
     if (!active) return;
     const dismiss = () => setActive(false);
     const guard = setTimeout(() => {
-      window.addEventListener("keydown", dismiss, { once: true });
-      window.addEventListener("click",   dismiss, { once: true });
+      globalThis.addEventListener("keydown", dismiss, { once: true });
+      globalThis.addEventListener("click",   dismiss, { once: true });
     }, 600);
     return () => {
       clearTimeout(guard);
-      window.removeEventListener("keydown", dismiss);
-      window.removeEventListener("click",   dismiss);
+      globalThis.removeEventListener("keydown", dismiss);
+      globalThis.removeEventListener("click",   dismiss);
     };
   }, [active]);
 
@@ -371,7 +372,7 @@ export default function MatrixBoombox() {
           <div className="flex items-end gap-0.5 h-16 mb-3 border border-accent/20 bg-black/40 p-2">
             {eqBars.map((h, i) => (
               <div
-                key={i}
+                key={h}
                 className="flex-1 bg-accent rounded-sm"
                 style={{ height: `${Math.max(3, h * 48)}px`, opacity: 0.4 + h * 0.6 }}
               />
@@ -409,7 +410,7 @@ function SpeakerGrille() {
   );
 }
 
-function Reel({ speed }: { speed: string }) {
+function Reel({ speed }: Readonly<{ speed: string }>) {
   return (
     <div
       className="w-9 h-9 rounded-full border-2 border-accent/60 flex items-center justify-center animate-spin"

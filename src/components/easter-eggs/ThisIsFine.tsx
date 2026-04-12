@@ -147,13 +147,13 @@ export default function ThisIsFine() {
     if (!active) return;
     const dismiss = () => { setActive(false); setShowDog(false); };
     const guard = setTimeout(() => {
-      window.addEventListener("keydown", dismiss, { once: true });
-      window.addEventListener("click",   dismiss, { once: true });
+      globalThis.addEventListener("keydown", dismiss, { once: true });
+      globalThis.addEventListener("click",   dismiss, { once: true });
     }, 800);
     return () => {
       clearTimeout(guard);
-      window.removeEventListener("keydown", dismiss);
-      window.removeEventListener("click",   dismiss);
+      globalThis.removeEventListener("keydown", dismiss);
+      globalThis.removeEventListener("click",   dismiss);
     };
   }, [active]);
 

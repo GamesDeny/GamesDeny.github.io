@@ -16,7 +16,7 @@ const proficiencyColor: Record<string, string> = {
   Learning: "text-muted/60",
 };
 
-export default function Languages({ languages }: LanguagesProps) {
+export default function Languages({ languages }: Readonly<LanguagesProps>) {
   const { t } = useI18n();
 
   const proficiencyLabel: Record<string, string> = {

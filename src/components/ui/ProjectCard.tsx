@@ -11,7 +11,7 @@ interface ProjectCardProps {
   project: Project;
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project }: Readonly<ProjectCardProps>) {
   const { t, locale } = useI18n();
 
   return (

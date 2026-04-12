@@ -13,10 +13,10 @@ const EMPTY: Skill = { name: "", proficiency: "Familiar", percentage: 50 };
 
 async function runBulk<T>(items: T[], fn: (item: T) => Promise<Response>) {
   const results = await Promise.allSettled(items.map(fn));
-  return items.filter((_, i) => results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<Response>).value.ok);
+  return items.filter((_, i) => results[i].status === "fulfilled" && results[i].value.ok);
 }
 
-export default function SkillsClient({ initial }: { initial: Skill[] }) {
+export default function SkillsClient({ initial }: Readonly<{ initial: Skill[] }>) {
   const [skills, setSkills] = useState(initial);
 
   // row-level
@@ -200,7 +200,7 @@ export default function SkillsClient({ initial }: { initial: Skill[] }) {
                 </label>
                 <input type="range" min={0} max={100} value={bulkPct} disabled={!bulkApplyPct}
                   onChange={(e) => setBulkPct(Number(e.target.value))}
-                  className={`w-full accent-[#00ff9f] ${!bulkApplyPct ? "opacity-40" : ""}`} />
+                  className={`w-full accent-[#00ff9f] ${bulkApplyPct ? "" : "opacity-40"}`} />
               </div>
             </div>
             <div className="flex gap-3 mt-6">

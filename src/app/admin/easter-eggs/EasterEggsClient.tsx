@@ -22,13 +22,13 @@ const EGGS: EggDef[] = [
     key: "doomMode",
     label: "doom mode",
     description: "Triple-click the blinking cursor after the name in the hero section to activate IDDQD god mode.",
-    trigger: "4× click the name in the hero",
+    trigger: "4 times click the name in the hero",
   },
   {
     key: "legoTardis",
     label: "lego tardis",
     description: "Click the avatar photo 4 times to summon a LEGO TARDIS sliding across the screen with Doctor Who waving.",
-    trigger: "4× click the avatar photo",
+    trigger: "4 times click the avatar photo",
   },
   {
     key: "cookingTimer",
@@ -46,11 +46,11 @@ const EGGS: EggDef[] = [
     key: "thisIsFine",
     label: "this is fine",
     description: "Click any navbar section link 5 times within 4 seconds to trigger a Doom-style fire rising from the bottom, the dog sitting calmly with his coffee.",
-    trigger: "5× click any nav link within 4 seconds",
+    trigger: "5 times click any nav link within 4 seconds",
   },
 ];
 
-export default function EasterEggsClient({ initial }: { initial: EasterEggsConfig }) {
+export default function EasterEggsClient({ initial }: Readonly<{ initial: EasterEggsConfig }>) {
   const [config, setConfig] = useState<EasterEggsConfig>(initial);
   const [saving, setSaving] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
