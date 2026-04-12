@@ -2,6 +2,7 @@
 
 import type { Project } from "@/types";
 import { useI18n } from "@/i18n";
+import { localized } from "@/lib/i18n-utils";
 import Badge from "./Badge";
 import { GitFork, ExternalLink } from "lucide-react";
 
@@ -10,7 +11,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <div className="group relative flex flex-col border border-border bg-surface p-6 hover:border-accent/40 hover:-translate-y-1 transition-all duration-200">
@@ -23,12 +24,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
       {/* Name */}
       <h3 className="font-mono font-bold text-accent text-lg mb-2">
-        {project.name}
+        {localized(project.name, locale)}
       </h3>
 
       {/* Description */}
       <p className="font-mono text-sm text-text-secondary leading-relaxed flex-1 mb-4">
-        {project.description}
+        {localized(project.description, locale)}
       </p>
 
       {/* Tech stack */}

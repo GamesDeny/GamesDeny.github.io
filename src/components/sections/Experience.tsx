@@ -2,6 +2,7 @@
 
 import type { WorkEntry, EducationEntry } from "@/types";
 import { useI18n } from "@/i18n";
+import { localized, localizedArray } from "@/lib/i18n-utils";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Badge from "@/components/ui/Badge";
 
@@ -11,7 +12,7 @@ interface ExperienceProps {
 }
 
 export default function Experience({ experience, education }: ExperienceProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <section id="experience" className="py-24 px-6 md:px-12 lg:px-24">
@@ -30,7 +31,9 @@ export default function Experience({ experience, education }: ExperienceProps) {
 
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 mb-3">
                 <div>
-                  <h4 className="font-mono font-bold text-text-primary">{entry.role}</h4>
+                  <h4 className="font-mono font-bold text-text-primary">
+                    {localized(entry.role, locale)}
+                  </h4>
                   <p className="font-mono text-accent text-sm">{entry.company}</p>
                 </div>
                 <div className="text-right shrink-0">
@@ -42,7 +45,7 @@ export default function Experience({ experience, education }: ExperienceProps) {
               </div>
 
               <ul className="space-y-1.5 mb-4">
-                {entry.bullets.map((b, j) => (
+                {localizedArray(entry.bullets, locale).map((b, j) => (
                   <li key={j} className="font-mono text-sm text-text-secondary flex gap-2">
                     <span className="text-accent shrink-0">–</span>
                     {b}
@@ -73,7 +76,7 @@ export default function Experience({ experience, education }: ExperienceProps) {
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 mb-2">
                 <div>
                   <h4 className="font-mono font-bold text-text-primary">
-                    {entry.degree} {entry.field}
+                    {localized(entry.degree, locale)} {localized(entry.field, locale)}
                   </h4>
                   <p className="font-mono text-accent text-sm">{entry.institution}</p>
                 </div>
@@ -89,7 +92,7 @@ export default function Experience({ experience, education }: ExperienceProps) {
 
               {entry.notes && (
                 <ul className="space-y-1.5">
-                  {entry.notes.map((n, j) => (
+                  {localizedArray(entry.notes, locale).map((n, j) => (
                     <li key={j} className="font-mono text-sm text-text-secondary flex gap-2">
                       <span className="text-accent shrink-0">–</span>
                       {n}

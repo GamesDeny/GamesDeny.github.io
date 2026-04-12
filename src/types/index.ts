@@ -1,7 +1,13 @@
+/** A string that varies per locale. Keys are locale codes, e.g. { en: "Hello", it: "Ciao" } */
+export type LocalizedString = Record<string, string>;
+
+/** An array of strings that varies per locale. Keys are locale codes. */
+export type LocalizedStringArray = Record<string, string[]>;
+
 export interface Project {
   id: string;
-  name: string;
-  description: string;
+  name: LocalizedString;
+  description: LocalizedString;
   techStack: string[];
   githubUrl?: string;
   liveUrl?: string;
@@ -11,23 +17,23 @@ export interface Project {
 export interface WorkEntry {
   id?: string;
   company: string;
-  role: string;
+  role: LocalizedString;
   startDate: string;
   endDate: string | null; // null = "Present"
   location: string;
-  bullets: string[];
+  bullets: LocalizedStringArray;
   skills?: string[];
 }
 
 export interface EducationEntry {
   id?: string;
   institution: string;
-  degree: string;
-  field: string;
+  degree: LocalizedString;
+  field: LocalizedString;
   startDate: string;
   endDate: string;
   gpa?: string;
-  notes?: string[];
+  notes?: LocalizedStringArray;
 }
 
 export type ProficiencyLevel = "Expert" | "Proficient" | "Familiar" | "Learning";

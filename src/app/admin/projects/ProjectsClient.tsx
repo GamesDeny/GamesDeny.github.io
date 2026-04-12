@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { Project } from "@/types";
+import type { Project, LocalizedString } from "@/types";
+import { localized } from "@/lib/i18n-utils";
 import Badge from "@/components/ui/Badge";
 import ConfirmModal from "@/components/admin/ui/ConfirmModal";
 import SaveToast from "@/components/admin/ui/SaveToast";
@@ -10,14 +11,42 @@ import { Plus, Pencil, Trash2, ExternalLink, GitFork } from "lucide-react";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-const EMPTY: Project = { id: "", name: "", description: "", techStack: [], githubUrl: "", liveUrl: "", featured: false };
+interface FormState {
+  id: string;
+  name: LocalizedString;
+  description: LocalizedString;
+  techStack: string; // comma-separated
+  githubUrl: string;
+  liveUrl: string;
+  featured: boolean;
+}
 
-interface FormState extends Omit<Project, "techStack"> { techStack: string; }
+function emptyLocalized(locales: string[]): LocalizedString {
+  return Object.fromEntries(locales.map((l) => [l, ""]));
+}
 
-const toForm = (p: Project): FormState => ({ ...p, techStack: p.techStack.join(", ") });
-const fromForm = (f: FormState): Omit<Project, "id"> => ({
-  ...f, techStack: f.techStack.split(",").map((s) => s.trim()).filter(Boolean),
-});
+function toForm(p: Project, locales: string[]): FormState {
+  return {
+    id: p.id,
+    name: { ...emptyLocalized(locales), ...p.name },
+    description: { ...emptyLocalized(locales), ...p.description },
+    techStack: p.techStack.join(", "),
+    githubUrl: p.githubUrl ?? "",
+    liveUrl: p.liveUrl ?? "",
+    featured: p.featured ?? false,
+  };
+}
+
+function fromForm(f: FormState): Omit<Project, "id"> {
+  return {
+    name: f.name,
+    description: f.description,
+    techStack: f.techStack.split(",").map((s) => s.trim()).filter(Boolean),
+    githubUrl: f.githubUrl || undefined,
+    liveUrl: f.liveUrl || undefined,
+    featured: f.featured,
+  };
+}
 
 async function runBulk<T>(ids: T[], fn: (id: T) => Promise<Response>) {
   const results = await Promise.allSettled(ids.map(fn));
@@ -26,7 +55,13 @@ async function runBulk<T>(ids: T[], fn: (id: T) => Promise<Response>) {
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export default function ProjectsClient({ initial }: { initial: Project[] }) {
+export default function ProjectsClient({
+  initial,
+  locales,
+}: {
+  initial: Project[];
+  locales: string[];
+}) {
   const [projects, setProjects] = useState(initial);
 
   // row-level
@@ -43,17 +78,30 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const showToast = (msg: string, type: "success" | "error" = "success") => setToast({ msg, type });
 
-  // selection helpers
+  // selection
   const allIds = projects.map((p) => p.id!).filter(Boolean);
   const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
   const toggleOne = (id: string) => setSelected((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
   const toggleAll = () => setSelected(allSelected ? new Set() : new Set(allIds));
   const clearSelection = () => setSelected(new Set());
 
-  // row edit/delete
-  const openNew = () => { setForm(toForm(EMPTY)); setEditingId(null); };
-  const openEdit = (p: Project) => { setForm(toForm(p)); setEditingId(p.id ?? null); };
+  const openNew = () => {
+    const emptyForm: FormState = {
+      id: "",
+      name: emptyLocalized(locales),
+      description: emptyLocalized(locales),
+      techStack: "",
+      githubUrl: "",
+      liveUrl: "",
+      featured: false,
+    };
+    setForm(emptyForm);
+    setEditingId(null);
+  };
+  const openEdit = (p: Project) => { setForm(toForm(p, locales)); setEditingId(p.id ?? null); };
   const closeForm = () => { setForm(null); setEditingId(null); };
+
+  // ── CRUD ────────────────────────────────────────────────────────────────────
 
   const save = async () => {
     if (!form) return;
@@ -80,7 +128,6 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
     showToast("project deleted");
   };
 
-  // bulk delete
   const confirmBulkDelete = async () => {
     const ids = [...selected];
     const succeeded = await runBulk(ids, (id) => fetch(`/api/admin/projects?id=${id}`, { method: "DELETE" }));
@@ -91,7 +138,6 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
     showToast(failed > 0 ? `deleted ${succeeded.length}, ${failed} failed` : `deleted ${succeeded.length} projects`, failed > 0 ? "error" : "success");
   };
 
-  // bulk edit
   const applyBulkEdit = async () => {
     if (bulkFeatured === "no-change") { setBulkEdit(false); return; }
     const patch = { featured: bulkFeatured === "true" };
@@ -107,6 +153,11 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
     const failed = targets.length - succeeded.length;
     showToast(failed > 0 ? `updated ${succeeded.length}, ${failed} failed` : `updated ${succeeded.length} projects`, failed > 0 ? "error" : "success");
   };
+
+  // ─── render ─────────────────────────────────────────────────────────────────
+
+  // Display locale for table: prefer "en", else first
+  const displayLocale = locales.includes("en") ? "en" : locales[0];
 
   return (
     <div className="pb-16">
@@ -124,9 +175,7 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
         <table className="w-full text-sm font-mono">
           <thead className="bg-surface border-b border-border text-muted text-xs">
             <tr>
-              <th className="px-4 py-3 w-8">
-                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#00ff9f]" />
-              </th>
+              <th className="px-4 py-3 w-8"><input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#00ff9f]" /></th>
               <th className="text-left px-4 py-3">name</th>
               <th className="text-left px-4 py-3">stack</th>
               <th className="text-left px-4 py-3">featured</th>
@@ -137,10 +186,8 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
           <tbody>
             {projects.map((p) => (
               <tr key={p.id} className={`border-b border-border hover:bg-surface/50 ${selected.has(p.id!) ? "bg-accent/5" : ""}`}>
-                <td className="px-4 py-3">
-                  <input type="checkbox" checked={selected.has(p.id!)} onChange={() => toggleOne(p.id!)} className="accent-[#00ff9f]" />
-                </td>
-                <td className="px-4 py-3 text-text-primary">{p.name}</td>
+                <td className="px-4 py-3"><input type="checkbox" checked={selected.has(p.id!)} onChange={() => toggleOne(p.id!)} className="accent-[#00ff9f]" /></td>
+                <td className="px-4 py-3 text-text-primary">{localized(p.name, displayLocale)}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
                     {p.techStack.slice(0, 3).map((t) => <Badge key={t} label={t} />)}
@@ -162,9 +209,7 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
                 </td>
               </tr>
             ))}
-            {projects.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted text-xs">no projects yet</td></tr>
-            )}
+            {projects.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-muted text-xs">no projects yet</td></tr>}
           </tbody>
         </table>
       </div>
@@ -172,31 +217,53 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
       {/* Row edit modal */}
       {form && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
-          <div className="bg-surface border border-border w-full max-w-lg p-6 font-mono overflow-y-auto max-h-[90vh]">
+          <div className="bg-surface border border-border w-full max-w-xl p-6 font-mono overflow-y-auto max-h-[90vh]">
             <h2 className="text-accent text-sm mb-4">{editingId ? "edit project" : "new project"}</h2>
-            <div className="space-y-4">
-              {(["name", "description", "githubUrl", "liveUrl"] as const).map((field) => (
-                <div key={field}>
-                  <label className="block text-xs text-muted mb-1">{field}</label>
-                  {field === "description" ? (
-                    <textarea rows={3} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60 resize-none" />
-                  ) : (
-                    <input type="text" value={form[field] ?? ""} onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
-                  )}
-                </div>
-              ))}
+            <div className="space-y-5">
+
+              {/* Localized: name */}
+              <div>
+                <label className="block text-xs text-muted mb-2">name</label>
+                {locales.map((l) => (
+                  <div key={l} className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-accent w-6 shrink-0 uppercase">{l}</span>
+                    <input type="text" value={form.name[l] ?? ""} onChange={(e) => setForm({ ...form, name: { ...form.name, [l]: e.target.value } })}
+                      className="flex-1 bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Localized: description */}
+              <div>
+                <label className="block text-xs text-muted mb-2">description</label>
+                {locales.map((l) => (
+                  <div key={l} className="flex items-start gap-2 mb-2">
+                    <span className="text-xs text-accent w-6 shrink-0 uppercase pt-2.5">{l}</span>
+                    <textarea rows={3} value={form.description[l] ?? ""} onChange={(e) => setForm({ ...form, description: { ...form.description, [l]: e.target.value } })}
+                      className="flex-1 bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60 resize-none" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Non-localized fields */}
               <div>
                 <label className="block text-xs text-muted mb-1">tech stack (comma-separated)</label>
                 <input type="text" value={form.techStack} onChange={(e) => setForm({ ...form, techStack: e.target.value })}
                   className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
               </div>
+              {(["githubUrl", "liveUrl"] as const).map((field) => (
+                <div key={field}>
+                  <label className="block text-xs text-muted mb-1">{field}</label>
+                  <input type="text" value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                </div>
+              ))}
               <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
                 <input type="checkbox" checked={!!form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="accent-[#00ff9f]" />
                 featured
               </label>
             </div>
+
             <div className="flex gap-3 mt-6">
               <button onClick={save} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">save</button>
               <button onClick={closeForm} className="flex-1 border border-border text-muted py-2 text-sm hover:border-accent/40 transition-colors">cancel</button>

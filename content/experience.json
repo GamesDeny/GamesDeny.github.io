@@ -2,43 +2,73 @@
   {
     "id": "Soldo",
     "company": "Soldo",
-    "role": "Software Engineer",
+    "role": {
+      "en": "Software Engineer",
+      "it": "Ingegnere Software"
+    },
     "startDate": "10-2025",
     "endDate": null,
     "location": "Hybrid (Rome) - 1 day/week",
-    "bullets": [
-      "Development and research of architectural solutions for the development of new features",
-      "Creation of asynchronous flows to generate reports",
-      "Maintenance and improvement of products"
-    ],
+    "bullets": {
+      "en": [
+        "Development and research of architectural solutions for the development of new features",
+        "Creation of asynchronous flows to generate reports",
+        "Maintenance and improvement of products"
+      ],
+      "it": [
+        "Sviluppo e ricerca di soluzioni architetturali per lo sviluppo di nuove funzionalità",
+        "Creazione di flussi asincroni per la generazione di report",
+        "Manutenzione e miglioramento dei prodotti"
+      ]
+    },
     "skills": ["Java", "SpringBoot", "MySQL", "K8s", "AWS", "Kubernetes", "Docker", "Kafka", "Shedlock"]
   },
   {
-    "id": "Alten ITALIA",
+    "id": "Alten-Soldo",
     "company": "Alten ITALIA - Soldo",
-    "role": "Junior Software Engineer",
+    "role": {
+      "en": "Junior Software Engineer",
+      "it": "Ingegnere Software Junior"
+    },
     "startDate": "02-2023",
     "endDate": "10-2025",
     "location": "Remote (Rome)",
-    "bullets": [
-      "Refactor of legacy code and improvement",
-      "Flow improvement and bug fixing of the main product",
-      "Generation of statement reports in different formats: PDF, CSV, XLSX, OFX, QIF, ZIP"
-    ],
+    "bullets": {
+      "en": [
+        "Refactor of legacy code and improvement",
+        "Flow improvement and bug fixing of the main product",
+        "Generation of statement reports in different formats: PDF, CSV, XLSX, OFX, QIF, ZIP"
+      ],
+      "it": [
+        "Refactoring del codice legacy e miglioramenti",
+        "Miglioramento dei flussi e bug fixing del prodotto principale",
+        "Generazione di rendiconti in diversi formati: PDF, CSV, XLSX, OFX, QIF, ZIP"
+      ]
+    },
     "skills": ["Java", "Spring", "SpringBoot", "MySQL", "AWS", "Kubernetes", "Docker"]
   },
   {
-    "id": "Alten ITALIA",
+    "id": "Alten-Sisal",
     "company": "Alten ITALIA - Sisal",
-    "role": "Junior Software Engineer",
+    "role": {
+      "en": "Junior Software Engineer",
+      "it": "Ingegnere Software Junior"
+    },
     "startDate": "08-2022",
     "endDate": "02-2023",
     "location": "Hybrid (Rome) - 2 days/week",
-    "bullets": [
-      "Implementation of API",
-      "Solution reasearch for memory optimization and performance improvement of an OCR system",
-      "Stress testing and performance monitoring of the system in production"
-    ],
+    "bullets": {
+      "en": [
+        "Implementation of API",
+        "Solution research for memory optimization and performance improvement of an OCR system",
+        "Stress testing and performance monitoring of the system in production"
+      ],
+      "it": [
+        "Implementazione di API",
+        "Ricerca di soluzioni per l'ottimizzazione della memoria e il miglioramento delle prestazioni di un sistema OCR",
+        "Stress testing e monitoraggio delle performance del sistema in produzione"
+      ]
+    },
     "skills": ["Java", "SpringBoot", "MySQL", "AWS", "Kubernetes", "Docker"]
   }
 ]

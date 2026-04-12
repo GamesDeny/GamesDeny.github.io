@@ -2,21 +2,39 @@
   {
     "id": "Magistrale",
     "institution": "Uninettuno",
-    "degree": "Master's Degree",
-    "field": "Computer Science - Programming and Security",
+    "degree": {
+      "en": "Master's Degree",
+      "it": "Laurea Magistrale"
+    },
+    "field": {
+      "en": "Computer Science - Programming and Security",
+      "it": "Informatica - Programmazione e Sicurezza"
+    },
     "startDate": "10-2022",
     "endDate": "04-2025",
     "gpa": "90/110",
-    "notes": ["Thesis on customizable pipeline parallelism for statement report generation"]
+    "notes": {
+      "en": ["Thesis on customizable pipeline parallelism for statement report generation"],
+      "it": ["Tesi sul parallelismo pipeline personalizzabile per la generazione di rendiconti"]
+    }
   },
   {
     "id": "Triennale",
     "institution": "Politecnico di Milano",
-    "degree": "Bachelor's Degree",
-    "field": "Computer Science",
+    "degree": {
+      "en": "Bachelor's Degree",
+      "it": "Laurea Triennale"
+    },
+    "field": {
+      "en": "Computer Science",
+      "it": "Informatica"
+    },
     "startDate": "09-2019",
     "endDate": "09-2022",
     "gpa": "98/110",
-    "notes": ["Shop for ELIS inventory management"]
+    "notes": {
+      "en": ["Shop for ELIS inventory management"],
+      "it": ["Shop per la gestione dell'inventario ELIS"]
+    }
   }
 ]

@@ -5,7 +5,7 @@ import { useI18n } from "@/i18n";
 import { contact, siteConfig } from "@/config/contact";
 import SectionTitle from "@/components/ui/SectionTitle";
 import SocialLink from "@/components/ui/SocialLink";
-import { GitFork, Link, Camera, Layers, Map, Mail, Copy, Check } from "lucide-react";
+import { GitFork, Link, Camera, Layers, Map, Code2, Mail, Copy, Check } from "lucide-react";
 
 export default function Contact() {
   const { t } = useI18n();
@@ -28,6 +28,7 @@ export default function Contact() {
     contact.social.instagram && { href: contact.social.instagram, label: "Instagram", icon: <Camera size={16} /> },
     contact.social.stackoverflow && { href: contact.social.stackoverflow, label: "Stack Overflow", icon: <Layers size={16} /> },
     roadmapUrl && { href: roadmapUrl, label: "roadmap.sh", icon: <Map size={16} /> },
+    contact.social.leetcode && { href: contact.social.leetcode, label: "LeetCode", icon: <Code2 size={16} /> },
   ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
 
   return (

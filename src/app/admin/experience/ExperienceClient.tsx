@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { WorkEntry, EducationEntry } from "@/types";
+import type { WorkEntry, EducationEntry, LocalizedString, LocalizedStringArray } from "@/types";
+import { localized } from "@/lib/i18n-utils";
 import ConfirmModal from "@/components/admin/ui/ConfirmModal";
 import SaveToast from "@/components/admin/ui/SaveToast";
 import BulkActionBar from "@/components/admin/ui/BulkActionBar";
@@ -14,47 +15,125 @@ async function runBulk<T>(items: T[], fn: (item: T) => Promise<Response>) {
   return items.filter((_, i) => results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<Response>).value.ok);
 }
 
-const EMPTY_WORK: WorkEntry = { id: "", company: "", role: "", startDate: "", endDate: null, location: "", bullets: [""], skills: [] };
-const EMPTY_EDU: EducationEntry = { id: "", institution: "", degree: "", field: "", startDate: "", endDate: "", gpa: "", notes: [] };
+function emptyLocalized(locales: string[]): LocalizedString {
+  return Object.fromEntries(locales.map((l) => [l, ""]));
+}
+function emptyLocalizedArray(locales: string[]): LocalizedStringArray {
+  return Object.fromEntries(locales.map((l) => [l, [""]]));
+}
 
-interface WorkFormState extends Omit<WorkEntry, "skills" | "endDate"> { skills: string; endDate: string; }
-interface EduFormState extends Omit<EducationEntry, "notes"> { notes: string[]; }
+// ─── Form state types ─────────────────────────────────────────────────────────
 
-const toWorkForm = (e: WorkEntry): WorkFormState => ({ ...e, skills: (e.skills ?? []).join(", "), endDate: e.endDate ?? "" });
-const fromWorkForm = (f: WorkFormState): Omit<WorkEntry, "id"> => ({
-  company: f.company, role: f.role, startDate: f.startDate,
-  endDate: f.endDate.trim() === "" ? null : f.endDate,
-  location: f.location,
-  bullets: f.bullets.filter(Boolean),
-  skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean),
-});
-const toEduForm = (e: EducationEntry): EduFormState => ({ ...e, notes: e.notes ?? [] });
-const fromEduForm = (f: EduFormState): Omit<EducationEntry, "id"> => ({
-  institution: f.institution, degree: f.degree, field: f.field,
-  startDate: f.startDate, endDate: f.endDate, gpa: f.gpa, notes: f.notes.filter(Boolean),
-});
+interface WorkFormState {
+  id: string;
+  company: string;
+  role: LocalizedString;
+  startDate: string;
+  endDate: string; // empty string = Present
+  location: string;
+  bullets: LocalizedStringArray;
+  skills: string; // comma-separated
+}
+
+interface EduFormState {
+  id: string;
+  institution: string;
+  degree: LocalizedString;
+  field: LocalizedString;
+  startDate: string;
+  endDate: string;
+  gpa: string;
+  notes: LocalizedStringArray;
+}
+
+function toWorkForm(e: WorkEntry, locales: string[]): WorkFormState {
+  return {
+    id: e.id ?? "",
+    company: e.company,
+    role: { ...emptyLocalized(locales), ...e.role },
+    startDate: e.startDate,
+    endDate: e.endDate ?? "",
+    location: e.location,
+    bullets: Object.fromEntries(
+      locales.map((l) => [l, (e.bullets[l] ?? e.bullets.en ?? Object.values(e.bullets)[0] ?? [""]).length > 0
+        ? (e.bullets[l] ?? e.bullets.en ?? Object.values(e.bullets)[0] ?? [""])
+        : [""]])
+    ),
+    skills: (e.skills ?? []).join(", "),
+  };
+}
+
+function fromWorkForm(f: WorkFormState): Omit<WorkEntry, "id"> {
+  return {
+    company: f.company,
+    role: f.role,
+    startDate: f.startDate,
+    endDate: f.endDate.trim() === "" ? null : f.endDate,
+    location: f.location,
+    bullets: Object.fromEntries(
+      Object.entries(f.bullets).map(([l, arr]) => [l, arr.filter(Boolean)])
+    ),
+    skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean),
+  };
+}
+
+function toEduForm(e: EducationEntry, locales: string[]): EduFormState {
+  return {
+    id: e.id ?? "",
+    institution: e.institution,
+    degree: { ...emptyLocalized(locales), ...e.degree },
+    field: { ...emptyLocalized(locales), ...e.field },
+    startDate: e.startDate,
+    endDate: e.endDate,
+    gpa: e.gpa ?? "",
+    notes: e.notes
+      ? Object.fromEntries(locales.map((l) => [l, (e.notes![l] ?? e.notes!.en ?? Object.values(e.notes!)[0] ?? [""]).length > 0
+          ? (e.notes![l] ?? e.notes!.en ?? Object.values(e.notes!)[0] ?? [""])
+          : [""]]))
+      : emptyLocalizedArray(locales),
+  };
+}
+
+function fromEduForm(f: EduFormState): Omit<EducationEntry, "id"> {
+  return {
+    institution: f.institution,
+    degree: f.degree,
+    field: f.field,
+    startDate: f.startDate,
+    endDate: f.endDate,
+    gpa: f.gpa || undefined,
+    notes: Object.fromEntries(
+      Object.entries(f.notes).map(([l, arr]) => [l, arr.filter(Boolean)])
+    ),
+  };
+}
 
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function ExperienceClient({
-  initialExperience, initialEducation,
-}: { initialExperience: WorkEntry[]; initialEducation: EducationEntry[] }) {
+  initialExperience,
+  initialEducation,
+  locales,
+}: {
+  initialExperience: WorkEntry[];
+  initialEducation: EducationEntry[];
+  locales: string[];
+}) {
+  const displayLocale = locales.includes("en") ? "en" : locales[0];
+
   const [tab, setTab] = useState<"work" | "education">("work");
   const [experience, setExperience] = useState(initialExperience);
   const [education, setEducation] = useState(initialEducation);
 
-  // row forms
   const [workForm, setWorkForm] = useState<WorkFormState | null>(null);
   const [eduForm, setEduForm] = useState<EduFormState | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ type: "work" | "edu"; id: string } | null>(null);
 
-  // bulk — separate sets per tab
+  // bulk
   const [selectedWork, setSelectedWork] = useState<Set<string>>(new Set());
   const [selectedEdu, setSelectedEdu] = useState<Set<string>>(new Set());
   const [bulkEdit, setBulkEdit] = useState(false);
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
-
-  // bulk edit fields
   const [bulkEndDate, setBulkEndDate] = useState<"no-change" | "present" | "date">("no-change");
   const [bulkEndDateVal, setBulkEndDateVal] = useState("");
   const [bulkLocation, setBulkLocation] = useState("");
@@ -63,7 +142,6 @@ export default function ExperienceClient({
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const showToast = (msg: string, type: "success" | "error" = "success") => setToast({ msg, type });
 
-  // active selection for current tab
   const activeSelected = tab === "work" ? selectedWork : selectedEdu;
   const setActiveSelected = tab === "work" ? setSelectedWork : setSelectedEdu;
   const activeItems = tab === "work" ? experience : education;
@@ -147,7 +225,6 @@ export default function ExperienceClient({
       else if (bulkEndDate === "date" && bulkEndDateVal.trim()) patch.endDate = bulkEndDateVal.trim();
       if (bulkLocation.trim()) patch.location = bulkLocation.trim();
       if (Object.keys(patch).length === 0) { setBulkEdit(false); return; }
-
       const targets = experience.filter((e) => selectedWork.has(e.id!));
       const succeeded = await runBulk(targets, (e) =>
         fetch("/api/admin/experience", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...e, ...patch }) })
@@ -160,7 +237,6 @@ export default function ExperienceClient({
       const patch: Partial<EducationEntry> = {};
       if (bulkEduEndDate.trim()) patch.endDate = bulkEduEndDate.trim();
       if (Object.keys(patch).length === 0) { setBulkEdit(false); return; }
-
       const targets = education.filter((e) => selectedEdu.has(e.id!));
       const succeeded = await runBulk(targets, (e) =>
         fetch("/api/admin/education", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...e, ...patch }) })
@@ -178,6 +254,56 @@ export default function ExperienceClient({
     setBulkEduEndDate("");
   };
 
+  // ── LocalizedString input ──────────────────────────────────────────────────
+
+  function LocalizedInput({ label, value, onChange }: {
+    label: string;
+    value: LocalizedString;
+    onChange: (v: LocalizedString) => void;
+  }) {
+    return (
+      <div>
+        <label className="block text-xs text-muted mb-2">{label}</label>
+        {locales.map((l) => (
+          <div key={l} className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-accent w-6 shrink-0 uppercase">{l}</span>
+            <input type="text" value={value[l] ?? ""} onChange={(e) => onChange({ ...value, [l]: e.target.value })}
+              className="flex-1 bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function LocalizedBullets({ label, value, onChange }: {
+    label: string;
+    value: LocalizedStringArray;
+    onChange: (v: LocalizedStringArray) => void;
+  }) {
+    return (
+      <div>
+        <label className="block text-xs text-muted mb-2">{label}</label>
+        {locales.map((l) => {
+          const arr = value[l] ?? [""];
+          return (
+            <div key={l} className="mb-4">
+              <p className="text-xs text-accent uppercase mb-2">{l}</p>
+              {arr.map((b, i) => (
+                <div key={i} className="flex gap-2 mb-2">
+                  <input type="text" value={b}
+                    onChange={(e) => onChange({ ...value, [l]: arr.map((x, j) => j === i ? e.target.value : x) })}
+                    className="flex-1 bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                  <button onClick={() => onChange({ ...value, [l]: arr.filter((_, j) => j !== i) })} className="text-muted hover:text-red-400"><X size={14} /></button>
+                </div>
+              ))}
+              <button onClick={() => onChange({ ...value, [l]: [...arr, ""] })} className="text-xs text-accent hover:underline">+ add</button>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
 
   return (
@@ -189,8 +315,8 @@ export default function ExperienceClient({
         </div>
         <button
           onClick={() => tab === "work"
-            ? setWorkForm({ ...EMPTY_WORK, skills: "", endDate: "" })
-            : setEduForm(toEduForm(EMPTY_EDU))
+            ? setWorkForm({ id: "", company: "", role: emptyLocalized(locales), startDate: "", endDate: "", location: "", bullets: emptyLocalizedArray(locales), skills: "" })
+            : setEduForm({ id: "", institution: "", degree: emptyLocalized(locales), field: emptyLocalized(locales), startDate: "", endDate: "", gpa: "", notes: emptyLocalizedArray(locales) })
           }
           className="flex items-center gap-2 border border-accent text-accent px-4 py-2 text-sm hover:bg-accent hover:text-background transition-colors"
         >
@@ -226,11 +352,11 @@ export default function ExperienceClient({
                 <tr key={e.id} className={`border-b border-border hover:bg-surface/50 ${selectedWork.has(e.id!) ? "bg-accent/5" : ""}`}>
                   <td className="px-4 py-3"><input type="checkbox" checked={selectedWork.has(e.id!)} onChange={() => toggleOne(e.id!)} className="accent-[#00ff9f]" /></td>
                   <td className="px-4 py-3 text-accent">{e.company}</td>
-                  <td className="px-4 py-3 text-text-primary">{e.role}</td>
+                  <td className="px-4 py-3 text-text-primary">{localized(e.role, displayLocale)}</td>
                   <td className="px-4 py-3 text-muted text-xs">{e.startDate} — {e.endDate ?? "Present"}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3 justify-end">
-                      <button onClick={() => setWorkForm(toWorkForm(e))} className="text-muted hover:text-accent"><Pencil size={13} /></button>
+                      <button onClick={() => setWorkForm(toWorkForm(e, locales))} className="text-muted hover:text-accent"><Pencil size={13} /></button>
                       <button onClick={() => setDeleteTarget({ type: "work", id: e.id! })} className="text-muted hover:text-red-400"><Trash2 size={13} /></button>
                     </div>
                   </td>
@@ -260,11 +386,11 @@ export default function ExperienceClient({
                 <tr key={e.id} className={`border-b border-border hover:bg-surface/50 ${selectedEdu.has(e.id!) ? "bg-accent/5" : ""}`}>
                   <td className="px-4 py-3"><input type="checkbox" checked={selectedEdu.has(e.id!)} onChange={() => toggleOne(e.id!)} className="accent-[#00ff9f]" /></td>
                   <td className="px-4 py-3 text-accent">{e.institution}</td>
-                  <td className="px-4 py-3 text-text-primary">{e.degree} {e.field}</td>
+                  <td className="px-4 py-3 text-text-primary">{localized(e.degree, displayLocale)} {localized(e.field, displayLocale)}</td>
                   <td className="px-4 py-3 text-muted text-xs">{e.startDate} — {e.endDate}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3 justify-end">
-                      <button onClick={() => setEduForm(toEduForm(e))} className="text-muted hover:text-accent"><Pencil size={13} /></button>
+                      <button onClick={() => setEduForm(toEduForm(e, locales))} className="text-muted hover:text-accent"><Pencil size={13} /></button>
                       <button onClick={() => setDeleteTarget({ type: "edu", id: e.id! })} className="text-muted hover:text-red-400"><Trash2 size={13} /></button>
                     </div>
                   </td>
@@ -279,30 +405,43 @@ export default function ExperienceClient({
       {/* Work row form */}
       {workForm && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
-          <div className="bg-surface border border-border w-full max-w-lg p-6 font-mono overflow-y-auto max-h-[90vh]">
+          <div className="bg-surface border border-border w-full max-w-xl p-6 font-mono overflow-y-auto max-h-[90vh]">
             <h2 className="text-accent text-sm mb-4">{workForm.id ? "edit work entry" : "new work entry"}</h2>
-            <div className="space-y-4">
-              {(["company", "role", "location", "startDate"] as const).map((f) => (
-                <div key={f}><label className="block text-xs text-muted mb-1">{f}</label>
-                  <input type="text" value={workForm[f]} onChange={(e) => setWorkForm({ ...workForm, [f]: e.target.value })}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
-              ))}
-              <div><label className="block text-xs text-muted mb-1">endDate (leave empty for Present)</label>
-                <input type="text" value={workForm.endDate} onChange={(e) => setWorkForm({ ...workForm, endDate: e.target.value })}
-                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
-              <div><label className="block text-xs text-muted mb-1">bullets</label>
-                {workForm.bullets.map((b, i) => (
-                  <div key={i} className="flex gap-2 mb-2">
-                    <input type="text" value={b} onChange={(e) => setWorkForm({ ...workForm, bullets: workForm.bullets.map((x, j) => j === i ? e.target.value : x) })}
-                      className="flex-1 bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
-                    <button onClick={() => setWorkForm({ ...workForm, bullets: workForm.bullets.filter((_, j) => j !== i) })} className="text-muted hover:text-red-400"><X size={14} /></button>
-                  </div>
-                ))}
-                <button onClick={() => setWorkForm({ ...workForm, bullets: [...workForm.bullets, ""] })} className="text-xs text-accent hover:underline">+ add bullet</button>
+            <div className="space-y-5">
+              <div>
+                <label className="block text-xs text-muted mb-1">company</label>
+                <input type="text" value={workForm.company} onChange={(e) => setWorkForm({ ...workForm, company: e.target.value })}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
               </div>
-              <div><label className="block text-xs text-muted mb-1">skills (comma-separated)</label>
+
+              <LocalizedInput label="role" value={workForm.role} onChange={(v) => setWorkForm({ ...workForm, role: v })} />
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-muted mb-1">startDate</label>
+                  <input type="text" value={workForm.startDate} onChange={(e) => setWorkForm({ ...workForm, startDate: e.target.value })}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted mb-1">endDate (empty = Present)</label>
+                  <input type="text" value={workForm.endDate} onChange={(e) => setWorkForm({ ...workForm, endDate: e.target.value })}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-muted mb-1">location</label>
+                <input type="text" value={workForm.location} onChange={(e) => setWorkForm({ ...workForm, location: e.target.value })}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+              </div>
+
+              <LocalizedBullets label="bullets" value={workForm.bullets} onChange={(v) => setWorkForm({ ...workForm, bullets: v })} />
+
+              <div>
+                <label className="block text-xs text-muted mb-1">skills (comma-separated)</label>
                 <input type="text" value={workForm.skills} onChange={(e) => setWorkForm({ ...workForm, skills: e.target.value })}
-                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+              </div>
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={saveWork} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">save</button>
@@ -315,24 +454,37 @@ export default function ExperienceClient({
       {/* Education row form */}
       {eduForm && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
-          <div className="bg-surface border border-border w-full max-w-lg p-6 font-mono overflow-y-auto max-h-[90vh]">
+          <div className="bg-surface border border-border w-full max-w-xl p-6 font-mono overflow-y-auto max-h-[90vh]">
             <h2 className="text-accent text-sm mb-4">{eduForm.id ? "edit education entry" : "new education entry"}</h2>
-            <div className="space-y-4">
-              {(["institution", "degree", "field", "startDate", "endDate", "gpa"] as const).map((f) => (
-                <div key={f}><label className="block text-xs text-muted mb-1">{f}</label>
-                  <input type="text" value={(eduForm[f] as string) ?? ""} onChange={(e) => setEduForm({ ...eduForm, [f]: e.target.value })}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
-              ))}
-              <div><label className="block text-xs text-muted mb-1">notes</label>
-                {eduForm.notes.map((n, i) => (
-                  <div key={i} className="flex gap-2 mb-2">
-                    <input type="text" value={n} onChange={(e) => setEduForm({ ...eduForm, notes: eduForm.notes.map((x, j) => j === i ? e.target.value : x) })}
-                      className="flex-1 bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
-                    <button onClick={() => setEduForm({ ...eduForm, notes: eduForm.notes.filter((_, j) => j !== i) })} className="text-muted hover:text-red-400"><X size={14} /></button>
-                  </div>
-                ))}
-                <button onClick={() => setEduForm({ ...eduForm, notes: [...eduForm.notes, ""] })} className="text-xs text-accent hover:underline">+ add note</button>
+            <div className="space-y-5">
+              <div>
+                <label className="block text-xs text-muted mb-1">institution</label>
+                <input type="text" value={eduForm.institution} onChange={(e) => setEduForm({ ...eduForm, institution: e.target.value })}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
               </div>
+
+              <LocalizedInput label="degree" value={eduForm.degree} onChange={(v) => setEduForm({ ...eduForm, degree: v })} />
+              <LocalizedInput label="field" value={eduForm.field} onChange={(v) => setEduForm({ ...eduForm, field: v })} />
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-muted mb-1">startDate</label>
+                  <input type="text" value={eduForm.startDate} onChange={(e) => setEduForm({ ...eduForm, startDate: e.target.value })}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted mb-1">endDate</label>
+                  <input type="text" value={eduForm.endDate} onChange={(e) => setEduForm({ ...eduForm, endDate: e.target.value })}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted mb-1">gpa</label>
+                  <input type="text" value={eduForm.gpa} onChange={(e) => setEduForm({ ...eduForm, gpa: e.target.value })}
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                </div>
+              </div>
+
+              <LocalizedBullets label="notes" value={eduForm.notes} onChange={(v) => setEduForm({ ...eduForm, notes: v })} />
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={saveEdu} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">save</button>
@@ -342,7 +494,7 @@ export default function ExperienceClient({
         </div>
       )}
 
-      {/* Bulk edit modal — work */}
+      {/* Bulk edit — work */}
       {bulkEdit && tab === "work" && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
           <div className="bg-surface border border-border w-full max-w-sm p-6 font-mono">
@@ -365,7 +517,7 @@ export default function ExperienceClient({
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-muted mb-1">location (leave empty to skip)</label>
+                <label className="block text-xs text-muted mb-1">location (empty = skip)</label>
                 <input type="text" value={bulkLocation} onChange={(e) => setBulkLocation(e.target.value)}
                   className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
               </div>
@@ -378,14 +530,14 @@ export default function ExperienceClient({
         </div>
       )}
 
-      {/* Bulk edit modal — education */}
+      {/* Bulk edit — education */}
       {bulkEdit && tab === "education" && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
           <div className="bg-surface border border-border w-full max-w-sm p-6 font-mono">
             <h2 className="text-accent text-sm mb-1">bulk edit — education</h2>
             <p className="text-xs text-muted mb-4">{selectedEdu.size} entries selected</p>
             <div>
-              <label className="block text-xs text-muted mb-1">end date (leave empty to skip)</label>
+              <label className="block text-xs text-muted mb-1">end date (empty = skip)</label>
               <input type="text" value={bulkEduEndDate} onChange={(e) => setBulkEduEndDate(e.target.value)} placeholder="e.g. 2021"
                 className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
             </div>

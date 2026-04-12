@@ -14,5 +14,6 @@ export const contact = {
     linkedin: process.env.NEXT_PUBLIC_LINKEDIN,
     instagram: process.env.NEXT_PUBLIC_INSTAGRAM,
     stackoverflow: process.env.NEXT_PUBLIC_STACKOVERFLOW,
+    leetcode: process.env.NEXT_PUBLIC_LEETCODE,
   },
 } as const;
