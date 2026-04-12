@@ -45,6 +45,12 @@ export interface Language {
   iconPath?: string;
 }
 
+export interface Skill {
+  name: string;
+  proficiency: ProficiencyLevel;
+  percentage: number; // 0–100 for bar width
+}
+
 export interface SkillGroup {
   category: string;
   items: string[];

@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, FolderGit, Briefcase, Code2, Languages, Map, LogOut,
+  LayoutDashboard, FolderGit, Briefcase, Code2, Wrench, Languages, Map, LogOut,
 } from "lucide-react";
 
 const links = [
@@ -11,6 +11,7 @@ const links = [
   { href: "/admin/projects",   label: "projects",    icon: FolderGit },
   { href: "/admin/experience", label: "experience",  icon: Briefcase },
   { href: "/admin/languages",  label: "languages",   icon: Code2 },
+  { href: "/admin/skills",     label: "skills",      icon: Wrench },
   { href: "/admin/i18n",       label: "i18n",        icon: Languages },
   { href: "/admin/roadmap",    label: "roadmap",     icon: Map },
 ];

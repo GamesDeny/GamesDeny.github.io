@@ -1,4 +1,4 @@
-import type { Project, WorkEntry, EducationEntry, Language, RoadmapConfig } from "@/types";
+import type { Project, WorkEntry, EducationEntry, Language, Skill, RoadmapConfig } from "@/types";
 import { readJSON, contentPath } from "@/lib/admin/content";
 import { siteConfig } from "@/config/contact";
 
@@ -6,6 +6,7 @@ import _projects from "@/data/projects";
 import _experience from "@/data/experience";
 import _education from "@/data/education";
 import _languages from "@/data/languages";
+import _skills from "@/data/skills";
 
 export async function getProjects(): Promise<Project[]> {
   return readJSON<Project[]>(contentPath("projects.json"), _projects);
@@ -21,6 +22,10 @@ export async function getEducation(): Promise<EducationEntry[]> {
 
 export async function getLanguages(): Promise<Language[]> {
   return readJSON<Language[]>(contentPath("languages.json"), _languages);
+}
+
+export async function getSkills(): Promise<Skill[]> {
+  return readJSON<Skill[]>(contentPath("skills.json"), _skills);
 }
 
 export async function getRoadmapConfig(): Promise<RoadmapConfig> {

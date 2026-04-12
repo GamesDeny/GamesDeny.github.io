@@ -32,7 +32,7 @@ interface WorkFormState {
   endDate: string; // empty string = Present
   location: string;
   bullets: LocalizedStringArray;
-  skills: string; // comma-separated
+  skills: string[];
 }
 
 interface EduFormState {
@@ -59,7 +59,7 @@ function toWorkForm(e: WorkEntry, locales: string[]): WorkFormState {
         ? (e.bullets[l] ?? e.bullets.en ?? Object.values(e.bullets)[0] ?? [""])
         : [""]])
     ),
-    skills: (e.skills ?? []).join(", "),
+    skills: e.skills ?? [],
   };
 }
 
@@ -73,7 +73,7 @@ function fromWorkForm(f: WorkFormState): Omit<WorkEntry, "id"> {
     bullets: Object.fromEntries(
       Object.entries(f.bullets).map(([l, arr]) => [l, arr.filter(Boolean)])
     ),
-    skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean),
+    skills: f.skills,
   };
 }
 
@@ -114,10 +114,12 @@ export default function ExperienceClient({
   initialExperience,
   initialEducation,
   locales,
+  allTags,
 }: {
   initialExperience: WorkEntry[];
   initialEducation: EducationEntry[];
   locales: string[];
+  allTags: string[];
 }) {
   const displayLocale = locales.includes("en") ? "en" : locales[0];
 
@@ -254,6 +256,41 @@ export default function ExperienceClient({
     setBulkEduEndDate("");
   };
 
+  // ── Tag picker ─────────────────────────────────────────────────────────────
+
+  function TagPicker({ allTags, selected, onToggle, extraTags }: {
+    allTags: string[];
+    selected: string[];
+    onToggle: (tag: string) => void;
+    extraTags: string[]; // tags on the entry that aren't in allTags (typed manually in the past)
+  }) {
+    const display = Array.from(new Set([...allTags, ...extraTags])).sort((a, b) => a.localeCompare(b));
+    return (
+      <div className="flex flex-wrap gap-2 p-3 border border-border bg-background min-h-[48px]">
+        {display.map((tag) => {
+          const active = selected.includes(tag);
+          return (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => onToggle(tag)}
+              className={`px-2 py-0.5 text-xs font-mono border transition-colors ${
+                active
+                  ? "border-accent text-accent bg-accent/10"
+                  : "border-border text-muted hover:border-accent/40 hover:text-text-primary"
+              }`}
+            >
+              {tag}
+            </button>
+          );
+        })}
+        {display.length === 0 && (
+          <span className="text-xs text-muted">no tags available — add languages or skills first</span>
+        )}
+      </div>
+    );
+  }
+
   // ── LocalizedString input ──────────────────────────────────────────────────
 
   function LocalizedInput({ label, value, onChange }: {
@@ -315,7 +352,7 @@ export default function ExperienceClient({
         </div>
         <button
           onClick={() => tab === "work"
-            ? setWorkForm({ id: "", company: "", role: emptyLocalized(locales), startDate: "", endDate: "", location: "", bullets: emptyLocalizedArray(locales), skills: "" })
+            ? setWorkForm({ id: "", company: "", role: emptyLocalized(locales), startDate: "", endDate: "", location: "", bullets: emptyLocalizedArray(locales), skills: [] })
             : setEduForm({ id: "", institution: "", degree: emptyLocalized(locales), field: emptyLocalized(locales), startDate: "", endDate: "", gpa: "", notes: emptyLocalizedArray(locales) })
           }
           className="flex items-center gap-2 border border-accent text-accent px-4 py-2 text-sm hover:bg-accent hover:text-background transition-colors"
@@ -438,9 +475,18 @@ export default function ExperienceClient({
               <LocalizedBullets label="bullets" value={workForm.bullets} onChange={(v) => setWorkForm({ ...workForm, bullets: v })} />
 
               <div>
-                <label className="block text-xs text-muted mb-1">skills (comma-separated)</label>
-                <input type="text" value={workForm.skills} onChange={(e) => setWorkForm({ ...workForm, skills: e.target.value })}
-                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                <label className="block text-xs text-muted mb-2">skills</label>
+                <TagPicker
+                  allTags={allTags}
+                  selected={workForm.skills}
+                  onToggle={(tag) => {
+                    const next = workForm.skills.includes(tag)
+                      ? workForm.skills.filter((t) => t !== tag)
+                      : [...workForm.skills, tag];
+                    setWorkForm({ ...workForm, skills: next });
+                  }}
+                  extraTags={workForm.skills.filter((t) => !allTags.includes(t))}
+                />
               </div>
             </div>
             <div className="flex gap-3 mt-6">
