@@ -6,6 +6,7 @@ import Languages from "@/components/sections/Languages";
 import Technologies from "@/components/sections/Technologies";
 import Contact from "@/components/sections/Contact";
 import ForkBomb from "@/components/easter-eggs/ForkBomb";
+import CookingTimer from "@/components/easter-eggs/CookingTimer";
 
 export default async function Page() {
   const [projects, experience, education, languages, easterEggs] = await Promise.all([
@@ -25,6 +26,7 @@ export default async function Page() {
       <Technologies experience={experience} />
       <Contact />
       {easterEggs.forkBomb && <ForkBomb />}
+      {easterEggs.cookingTimer && <CookingTimer />}
     </>
   );
 }

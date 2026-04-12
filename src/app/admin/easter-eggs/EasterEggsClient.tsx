@@ -30,6 +30,12 @@ const EGGS: EggDef[] = [
     description: "Click the avatar photo 4 times to summon a LEGO TARDIS sliding across the screen with Doctor Who waving.",
     trigger: "4× click the avatar photo",
   },
+  {
+    key: "cookingTimer",
+    label: "cooking timer",
+    description: "Move your mouse in 3 full circles to spin a pizza, twirl the screen, then countdown 3s before revealing pizza & spaghetti.",
+    trigger: "3 full mouse circles (consistent direction)",
+  },
 ];
 
 export default function EasterEggsClient({ initial }: { initial: EasterEggsConfig }) {

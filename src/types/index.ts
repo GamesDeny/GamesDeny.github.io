@@ -64,6 +64,7 @@ export interface EasterEggsConfig {
   forkBomb: boolean;
   doomMode: boolean;
   legoTardis: boolean;
+  cookingTimer: boolean;
 }
 
 export interface PersonalInfo {

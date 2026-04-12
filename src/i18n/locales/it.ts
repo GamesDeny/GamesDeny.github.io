@@ -17,6 +17,13 @@ const it: Translations = {
       joke: "stavo scherzando :)",
       continue: "premi un tasto per continuare_",
     },
+    cooking: {
+      breakfast: "Colazione",
+      lunch: "Pranzo",
+      dinner: "Cena",
+      ready: "{meal}-ms è pronto per essere servito",
+      continue: "premi un tasto per continuare_",
+    },
   },
   nav: {
     about: "su di me",

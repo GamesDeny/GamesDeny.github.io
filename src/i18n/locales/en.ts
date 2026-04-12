@@ -15,6 +15,13 @@ export interface Translations {
       joke: string;
       continue: string;
     };
+    cooking: {
+      breakfast: string;
+      lunch: string;
+      dinner: string;
+      ready: string;
+      continue: string;
+    };
   };
   nav: {
     about: string;
@@ -81,6 +88,13 @@ const en: Translations = {
       detail: "too many processes — system resources exhausted",
       reboot: "[    0.000000] Rebooting in 3 seconds...",
       joke: "just kidding :)",
+      continue: "press any key to continue_",
+    },
+    cooking: {
+      breakfast: "Breakfast",
+      lunch: "Lunch",
+      dinner: "Dinner",
+      ready: "{meal}-ms is ready to be served",
       continue: "press any key to continue_",
     },
   },

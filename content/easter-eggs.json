@@ -1,5 +1,6 @@
 {
   "forkBomb": true,
   "doomMode": true,
-  "legoTardis": true
+  "legoTardis": true,
+  "cookingTimer": true
 }
