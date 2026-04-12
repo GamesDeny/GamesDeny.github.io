@@ -1,0 +1,8 @@
+[
+  { "name": "TypeScript", "proficiency": "Expert",     "percentage": 95 },
+  { "name": "Python",     "proficiency": "Expert",     "percentage": 90 },
+  { "name": "Go",         "proficiency": "Proficient", "percentage": 75 },
+  { "name": "SQL",        "proficiency": "Proficient", "percentage": 80 },
+  { "name": "Rust",       "proficiency": "Familiar",   "percentage": 45 },
+  { "name": "Java",       "proficiency": "Familiar",   "percentage": 50 }
+]

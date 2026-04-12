@@ -1,16 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useI18n, type Locale } from "@/i18n";
+import { useEffect, useRef, useState } from "react";
+import { useI18n, availableLocales, type Locale } from "@/i18n";
 import { siteConfig } from "@/config/contact";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SECTIONS = ["hero", "projects", "experience", "languages", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
 
+function LocaleDropdown() {
+  const { locale, setLocale } = useI18n();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 font-mono text-xs border border-border px-2.5 py-1 text-muted hover:border-accent/40 hover:text-accent transition-colors duration-200 uppercase"
+      >
+        {locale}
+        <ChevronDown size={10} className={cn("transition-transform duration-200", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-1 border border-border bg-surface min-w-full z-50">
+          {availableLocales.map((l) => (
+            <button
+              key={l}
+              onClick={() => { setLocale(l); setOpen(false); }}
+              className={cn(
+                "block w-full text-left px-3 py-1.5 font-mono text-xs uppercase transition-colors duration-150",
+                locale === l
+                  ? "text-accent bg-accent/10"
+                  : "text-muted hover:text-text-primary hover:bg-surface"
+              )}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Navbar() {
-  const { t, locale, setLocale } = useI18n();
+  const { t } = useI18n();
   const [active, setActive] = useState<Section>("hero");
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -69,23 +115,12 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
           <NavLinks />
-          {/* Language toggle */}
-          <button
-            onClick={() => setLocale(locale === "en" ? "it" : ("en" as Locale))}
-            className="font-mono text-xs border border-border px-2.5 py-1 text-muted hover:border-accent/40 hover:text-accent transition-colors duration-200"
-          >
-            {locale === "en" ? "IT" : "EN"}
-          </button>
+          <LocaleDropdown />
         </div>
 
         {/* Mobile: lang toggle + hamburger */}
         <div className="flex items-center gap-3 md:hidden">
-          <button
-            onClick={() => setLocale(locale === "en" ? "it" : ("en" as Locale))}
-            className="font-mono text-xs border border-border px-2 py-1 text-muted hover:border-accent/40 hover:text-accent transition-colors duration-200"
-          >
-            {locale === "en" ? "IT" : "EN"}
-          </button>
+          <LocaleDropdown />
           <button
             onClick={() => setMenuOpen((o) => !o)}
             className="text-muted hover:text-text-primary transition-colors"

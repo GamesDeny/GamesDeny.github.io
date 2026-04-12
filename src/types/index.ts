@@ -9,6 +9,7 @@ export interface Project {
 }
 
 export interface WorkEntry {
+  id?: string;
   company: string;
   role: string;
   startDate: string;
@@ -19,6 +20,7 @@ export interface WorkEntry {
 }
 
 export interface EducationEntry {
+  id?: string;
   institution: string;
   degree: string;
   field: string;
@@ -40,6 +42,10 @@ export interface Language {
 export interface SkillGroup {
   category: string;
   items: string[];
+}
+
+export interface RoadmapConfig {
+  username: string;
 }
 
 export interface PersonalInfo {

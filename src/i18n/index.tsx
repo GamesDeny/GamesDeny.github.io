@@ -14,6 +14,9 @@ export type Locale = "en" | "it";
 
 const locales: Record<Locale, Translations> = { en, it };
 
+/** All available locales — add new ones here and the UI updates automatically. */
+export const availableLocales = Object.keys(locales) as Locale[];
+
 interface I18nContextValue {
   locale: Locale;
   t: Translations;

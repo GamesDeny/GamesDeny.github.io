@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "about": "about",
+    "projects": "projects",
+    "experience": "experience",
+    "languages": "languages",
+    "contact": "contact"
+  },
+  "hero": {
+    "greeting": "> Hi, I'm",
+    "tagline": "Software Engineer",
+    "bio": "I build reliable, scalable software and enjoy solving hard problems. Passionate about clean architecture, developer tooling, and turning complex ideas into working systems.",
+    "cta_projects": "view projects",
+    "cta_resume": "download resume"
+  },
+  "projects": {
+    "title": "projects",
+    "subtitle": "Things I've built",
+    "github": "source",
+    "live": "live",
+    "featured": "featured"
+  },
+  "experience": {
+    "title": "experience",
+    "subtitle": "Where I've worked",
+    "present": "Present",
+    "work": "Work",
+    "education": "Education"
+  },
+  "languages": {
+    "title": "languages",
+    "subtitle": "Technologies I work with",
+    "expert": "Expert",
+    "proficient": "Proficient",
+    "familiar": "Familiar",
+    "learning": "Learning"
+  },
+  "contact": {
+    "title": "contact",
+    "subtitle": "Get in touch",
+    "copy_email": "copy email",
+    "copied": "copied!",
+    "find_me": "Find me on"
+  }
+}

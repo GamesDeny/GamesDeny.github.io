@@ -1,0 +1,12 @@
+[
+  {
+    "id": "univ-example",
+    "institution": "University of Example",
+    "degree": "B.S.",
+    "field": "Computer Science",
+    "startDate": "2017",
+    "endDate": "2021",
+    "gpa": "110/110",
+    "notes": ["Thesis on distributed systems fault tolerance"]
+  }
+]
