@@ -15,7 +15,7 @@ interface FormState {
   id: string;
   name: LocalizedString;
   description: LocalizedString;
-  techStack: string; // comma-separated
+  techStack: string[];
   githubUrl: string;
   liveUrl: string;
   featured: boolean;
@@ -30,7 +30,7 @@ function toForm(p: Project, locales: string[]): FormState {
     id: p.id,
     name: { ...emptyLocalized(locales), ...p.name },
     description: { ...emptyLocalized(locales), ...p.description },
-    techStack: p.techStack.join(", "),
+    techStack: p.techStack,
     githubUrl: p.githubUrl ?? "",
     liveUrl: p.liveUrl ?? "",
     featured: p.featured ?? false,
@@ -41,7 +41,7 @@ function fromForm(f: FormState): Omit<Project, "id"> {
   return {
     name: f.name,
     description: f.description,
-    techStack: f.techStack.split(",").map((s) => s.trim()).filter(Boolean),
+    techStack: f.techStack,
     githubUrl: f.githubUrl || undefined,
     liveUrl: f.liveUrl || undefined,
     featured: f.featured,
@@ -58,9 +58,11 @@ async function runBulk<T>(ids: T[], fn: (id: T) => Promise<Response>) {
 export default function ProjectsClient({
   initial,
   locales,
+  allTags,
 }: {
   initial: Project[];
   locales: string[];
+  allTags: string[];
 }) {
   const [projects, setProjects] = useState(initial);
 
@@ -90,7 +92,7 @@ export default function ProjectsClient({
       id: "",
       name: emptyLocalized(locales),
       description: emptyLocalized(locales),
-      techStack: "",
+      techStack: [],
       githubUrl: "",
       liveUrl: "",
       featured: false,
@@ -245,11 +247,42 @@ export default function ProjectsClient({
                 ))}
               </div>
 
-              {/* Non-localized fields */}
+              {/* Tech stack tag picker */}
               <div>
-                <label className="block text-xs text-muted mb-1">tech stack (comma-separated)</label>
-                <input type="text" value={form.techStack} onChange={(e) => setForm({ ...form, techStack: e.target.value })}
-                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+                <label className="block text-xs text-muted mb-2">tech stack</label>
+                {(() => {
+                  const extraTags = form.techStack.filter((t) => !allTags.includes(t));
+                  const display = Array.from(new Set([...allTags, ...extraTags])).sort((a, b) => a.localeCompare(b));
+                  return (
+                    <div className="flex flex-wrap gap-2 p-3 border border-border bg-background min-h-[48px]">
+                      {display.map((tag) => {
+                        const active = form.techStack.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => setForm({
+                              ...form,
+                              techStack: active
+                                ? form.techStack.filter((t) => t !== tag)
+                                : [...form.techStack, tag],
+                            })}
+                            className={`px-2 py-0.5 text-xs font-mono border transition-colors ${
+                              active
+                                ? "border-accent text-accent bg-accent/10"
+                                : "border-border text-muted hover:border-accent/40 hover:text-text-primary"
+                            }`}
+                          >
+                            {tag}
+                          </button>
+                        );
+                      })}
+                      {display.length === 0 && (
+                        <span className="text-xs text-muted">no tags — add languages or skills first</span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
               {(["githubUrl", "liveUrl"] as const).map((field) => (
                 <div key={field}>
