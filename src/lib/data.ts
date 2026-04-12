@@ -1,5 +1,6 @@
 import type { Project, WorkEntry, EducationEntry, Language, RoadmapConfig } from "@/types";
 import { readJSON, contentPath } from "@/lib/admin/content";
+import { siteConfig } from "@/config/contact";
 
 import _projects from "@/data/projects";
 import _experience from "@/data/experience";
@@ -23,5 +24,5 @@ export async function getLanguages(): Promise<Language[]> {
 }
 
 export async function getRoadmapConfig(): Promise<RoadmapConfig> {
-  return readJSON<RoadmapConfig>(contentPath("roadmap.json"), { username: "" });
+  return { username: siteConfig.roadmapUsername };
 }

@@ -4,49 +4,37 @@ import { useState } from "react";
 import type { WorkEntry, EducationEntry } from "@/types";
 import ConfirmModal from "@/components/admin/ui/ConfirmModal";
 import SaveToast from "@/components/admin/ui/SaveToast";
+import BulkActionBar from "@/components/admin/ui/BulkActionBar";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 
-// ─── Work form ───────────────────────────────────────────────────────────────
+// ─── helpers ──────────────────────────────────────────────────────────────────
 
-const EMPTY_WORK: Omit<WorkEntry, "id"> = {
-  company: "", role: "", startDate: "", endDate: null, location: "", bullets: [""], skills: [],
-};
-
-interface WorkFormState extends Omit<WorkEntry, "id" | "bullets" | "skills" | "endDate"> {
-  id?: string; bullets: string[]; skills: string; endDate: string;
+async function runBulk<T>(items: T[], fn: (item: T) => Promise<Response>) {
+  const results = await Promise.allSettled(items.map(fn));
+  return items.filter((_, i) => results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<Response>).value.ok);
 }
 
-function toWorkForm(e: WorkEntry): WorkFormState {
-  return { ...e, skills: (e.skills ?? []).join(", "), endDate: e.endDate ?? "" };
-}
-function fromWorkForm(f: WorkFormState): Omit<WorkEntry, "id"> {
-  return {
-    company: f.company, role: f.role, startDate: f.startDate,
-    endDate: f.endDate.trim() === "" ? null : f.endDate,
-    location: f.location,
-    bullets: f.bullets.filter(Boolean),
-    skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean),
-  };
-}
+const EMPTY_WORK: WorkEntry = { id: "", company: "", role: "", startDate: "", endDate: null, location: "", bullets: [""], skills: [] };
+const EMPTY_EDU: EducationEntry = { id: "", institution: "", degree: "", field: "", startDate: "", endDate: "", gpa: "", notes: [] };
 
-// ─── Education form ───────────────────────────────────────────────────────────
+interface WorkFormState extends Omit<WorkEntry, "skills" | "endDate"> { skills: string; endDate: string; }
+interface EduFormState extends Omit<EducationEntry, "notes"> { notes: string[]; }
 
-const EMPTY_EDU: Omit<EducationEntry, "id"> = {
-  institution: "", degree: "", field: "", startDate: "", endDate: "", gpa: "", notes: [],
-};
+const toWorkForm = (e: WorkEntry): WorkFormState => ({ ...e, skills: (e.skills ?? []).join(", "), endDate: e.endDate ?? "" });
+const fromWorkForm = (f: WorkFormState): Omit<WorkEntry, "id"> => ({
+  company: f.company, role: f.role, startDate: f.startDate,
+  endDate: f.endDate.trim() === "" ? null : f.endDate,
+  location: f.location,
+  bullets: f.bullets.filter(Boolean),
+  skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean),
+});
+const toEduForm = (e: EducationEntry): EduFormState => ({ ...e, notes: e.notes ?? [] });
+const fromEduForm = (f: EduFormState): Omit<EducationEntry, "id"> => ({
+  institution: f.institution, degree: f.degree, field: f.field,
+  startDate: f.startDate, endDate: f.endDate, gpa: f.gpa, notes: f.notes.filter(Boolean),
+});
 
-interface EduFormState extends Omit<EducationEntry, "id" | "notes"> {
-  id?: string; notes: string[];
-}
-
-function toEduForm(e: EducationEntry): EduFormState {
-  return { ...e, notes: e.notes ?? [] };
-}
-function fromEduForm(f: EduFormState): Omit<EducationEntry, "id"> {
-  return { institution: f.institution, degree: f.degree, field: f.field, startDate: f.startDate, endDate: f.endDate, gpa: f.gpa, notes: f.notes.filter(Boolean) };
-}
-
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── component ────────────────────────────────────────────────────────────────
 
 export default function ExperienceClient({
   initialExperience, initialEducation,
@@ -54,14 +42,40 @@ export default function ExperienceClient({
   const [tab, setTab] = useState<"work" | "education">("work");
   const [experience, setExperience] = useState(initialExperience);
   const [education, setEducation] = useState(initialEducation);
+
+  // row forms
   const [workForm, setWorkForm] = useState<WorkFormState | null>(null);
   const [eduForm, setEduForm] = useState<EduFormState | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ type: "work" | "edu"; id: string } | null>(null);
-  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
+  // bulk — separate sets per tab
+  const [selectedWork, setSelectedWork] = useState<Set<string>>(new Set());
+  const [selectedEdu, setSelectedEdu] = useState<Set<string>>(new Set());
+  const [bulkEdit, setBulkEdit] = useState(false);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+
+  // bulk edit fields
+  const [bulkEndDate, setBulkEndDate] = useState<"no-change" | "present" | "date">("no-change");
+  const [bulkEndDateVal, setBulkEndDateVal] = useState("");
+  const [bulkLocation, setBulkLocation] = useState("");
+  const [bulkEduEndDate, setBulkEduEndDate] = useState("");
+
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const showToast = (msg: string, type: "success" | "error" = "success") => setToast({ msg, type });
 
-  // ── Work CRUD ──
+  // active selection for current tab
+  const activeSelected = tab === "work" ? selectedWork : selectedEdu;
+  const setActiveSelected = tab === "work" ? setSelectedWork : setSelectedEdu;
+  const activeItems = tab === "work" ? experience : education;
+  const activeIds = activeItems.map((e) => e.id!).filter(Boolean);
+  const allSelected = activeIds.length > 0 && activeIds.every((id) => activeSelected.has(id));
+
+  const toggleOne = (id: string) => setActiveSelected((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
+  const toggleAll = () => setActiveSelected(allSelected ? new Set() : new Set(activeIds));
+  const clearSelection = () => { setSelectedWork(new Set()); setSelectedEdu(new Set()); };
+
+  // ── Work CRUD ──────────────────────────────────────────────────────────────
+
   const saveWork = async () => {
     if (!workForm) return;
     const body = fromWorkForm(workForm);
@@ -78,7 +92,8 @@ export default function ExperienceClient({
     showToast(isEdit ? "entry updated" : "entry created");
   };
 
-  // ── Education CRUD ──
+  // ── Education CRUD ─────────────────────────────────────────────────────────
+
   const saveEdu = async () => {
     if (!eduForm) return;
     const body = fromEduForm(eduForm);
@@ -95,7 +110,9 @@ export default function ExperienceClient({
     showToast(isEdit ? "entry updated" : "entry created");
   };
 
-  const confirmDelete = async () => {
+  // ── Row delete ─────────────────────────────────────────────────────────────
+
+  const confirmRowDelete = async () => {
     if (!deleteTarget) return;
     const { type, id } = deleteTarget;
     const url = type === "work" ? `/api/admin/experience?id=${id}` : `/api/admin/education?id=${id}`;
@@ -107,15 +124,74 @@ export default function ExperienceClient({
     showToast("entry deleted");
   };
 
+  // ── Bulk delete ────────────────────────────────────────────────────────────
+
+  const confirmBulkDelete = async () => {
+    const ids = [...activeSelected];
+    const endpoint = tab === "work" ? "/api/admin/experience" : "/api/admin/education";
+    const succeeded = await runBulk(ids, (id) => fetch(`${endpoint}?id=${id}`, { method: "DELETE" }));
+    if (tab === "work") setExperience((prev) => prev.filter((e) => !succeeded.includes(e.id!)));
+    else setEducation((prev) => prev.filter((e) => !succeeded.includes(e.id!)));
+    clearSelection();
+    setBulkDeleteConfirm(false);
+    const failed = ids.length - succeeded.length;
+    showToast(failed > 0 ? `deleted ${succeeded.length}, ${failed} failed` : `deleted ${succeeded.length} entries`, failed > 0 ? "error" : "success");
+  };
+
+  // ── Bulk edit ──────────────────────────────────────────────────────────────
+
+  const applyBulkEdit = async () => {
+    if (tab === "work") {
+      const patch: Partial<WorkEntry> = {};
+      if (bulkEndDate === "present") patch.endDate = null;
+      else if (bulkEndDate === "date" && bulkEndDateVal.trim()) patch.endDate = bulkEndDateVal.trim();
+      if (bulkLocation.trim()) patch.location = bulkLocation.trim();
+      if (Object.keys(patch).length === 0) { setBulkEdit(false); return; }
+
+      const targets = experience.filter((e) => selectedWork.has(e.id!));
+      const succeeded = await runBulk(targets, (e) =>
+        fetch("/api/admin/experience", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...e, ...patch }) })
+      );
+      const ids = new Set(succeeded.map((e) => e.id!));
+      setExperience((prev) => prev.map((e) => ids.has(e.id!) ? { ...e, ...patch } : e));
+      const failed = targets.length - succeeded.length;
+      showToast(failed > 0 ? `updated ${succeeded.length}, ${failed} failed` : `updated ${succeeded.length} entries`, failed > 0 ? "error" : "success");
+    } else {
+      const patch: Partial<EducationEntry> = {};
+      if (bulkEduEndDate.trim()) patch.endDate = bulkEduEndDate.trim();
+      if (Object.keys(patch).length === 0) { setBulkEdit(false); return; }
+
+      const targets = education.filter((e) => selectedEdu.has(e.id!));
+      const succeeded = await runBulk(targets, (e) =>
+        fetch("/api/admin/education", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...e, ...patch }) })
+      );
+      const ids = new Set(succeeded.map((e) => e.id!));
+      setEducation((prev) => prev.map((e) => ids.has(e.id!) ? { ...e, ...patch } : e));
+      const failed = targets.length - succeeded.length;
+      showToast(failed > 0 ? `updated ${succeeded.length}, ${failed} failed` : `updated ${succeeded.length} entries`, failed > 0 ? "error" : "success");
+    }
+    clearSelection();
+    setBulkEdit(false);
+    setBulkEndDate("no-change");
+    setBulkEndDateVal("");
+    setBulkLocation("");
+    setBulkEduEndDate("");
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
   return (
-    <div>
+    <div className="pb-16">
       <div className="flex items-center justify-between mb-8">
         <div>
           <p className="text-accent text-sm mb-1">&gt; admin / experience</p>
           <h1 className="text-2xl font-bold text-text-primary">experience</h1>
         </div>
         <button
-          onClick={() => tab === "work" ? setWorkForm({ ...EMPTY_WORK, skills: "", endDate: "" }) : setEduForm({ ...EMPTY_EDU, notes: [] })}
+          onClick={() => tab === "work"
+            ? setWorkForm({ ...EMPTY_WORK, skills: "", endDate: "" })
+            : setEduForm(toEduForm(EMPTY_EDU))
+          }
           className="flex items-center gap-2 border border-accent text-accent px-4 py-2 text-sm hover:bg-accent hover:text-background transition-colors"
         >
           <Plus size={14} /> new entry
@@ -138,6 +214,7 @@ export default function ExperienceClient({
           <table className="w-full text-sm font-mono">
             <thead className="bg-surface border-b border-border text-muted text-xs">
               <tr>
+                <th className="px-4 py-3 w-8"><input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#00ff9f]" /></th>
                 <th className="text-left px-4 py-3">company</th>
                 <th className="text-left px-4 py-3">role</th>
                 <th className="text-left px-4 py-3">period</th>
@@ -146,7 +223,8 @@ export default function ExperienceClient({
             </thead>
             <tbody>
               {experience.map((e) => (
-                <tr key={e.id} className="border-b border-border hover:bg-surface/50">
+                <tr key={e.id} className={`border-b border-border hover:bg-surface/50 ${selectedWork.has(e.id!) ? "bg-accent/5" : ""}`}>
+                  <td className="px-4 py-3"><input type="checkbox" checked={selectedWork.has(e.id!)} onChange={() => toggleOne(e.id!)} className="accent-[#00ff9f]" /></td>
                   <td className="px-4 py-3 text-accent">{e.company}</td>
                   <td className="px-4 py-3 text-text-primary">{e.role}</td>
                   <td className="px-4 py-3 text-muted text-xs">{e.startDate} — {e.endDate ?? "Present"}</td>
@@ -158,7 +236,7 @@ export default function ExperienceClient({
                   </td>
                 </tr>
               ))}
-              {experience.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-muted text-xs">no entries yet</td></tr>}
+              {experience.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-muted text-xs">no entries yet</td></tr>}
             </tbody>
           </table>
         </div>
@@ -170,6 +248,7 @@ export default function ExperienceClient({
           <table className="w-full text-sm font-mono">
             <thead className="bg-surface border-b border-border text-muted text-xs">
               <tr>
+                <th className="px-4 py-3 w-8"><input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#00ff9f]" /></th>
                 <th className="text-left px-4 py-3">institution</th>
                 <th className="text-left px-4 py-3">degree</th>
                 <th className="text-left px-4 py-3">period</th>
@@ -178,7 +257,8 @@ export default function ExperienceClient({
             </thead>
             <tbody>
               {education.map((e) => (
-                <tr key={e.id} className="border-b border-border hover:bg-surface/50">
+                <tr key={e.id} className={`border-b border-border hover:bg-surface/50 ${selectedEdu.has(e.id!) ? "bg-accent/5" : ""}`}>
+                  <td className="px-4 py-3"><input type="checkbox" checked={selectedEdu.has(e.id!)} onChange={() => toggleOne(e.id!)} className="accent-[#00ff9f]" /></td>
                   <td className="px-4 py-3 text-accent">{e.institution}</td>
                   <td className="px-4 py-3 text-text-primary">{e.degree} {e.field}</td>
                   <td className="px-4 py-3 text-muted text-xs">{e.startDate} — {e.endDate}</td>
@@ -190,32 +270,27 @@ export default function ExperienceClient({
                   </td>
                 </tr>
               ))}
-              {education.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-muted text-xs">no entries yet</td></tr>}
+              {education.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-muted text-xs">no entries yet</td></tr>}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Work form modal */}
+      {/* Work row form */}
       {workForm && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
           <div className="bg-surface border border-border w-full max-w-lg p-6 font-mono overflow-y-auto max-h-[90vh]">
             <h2 className="text-accent text-sm mb-4">{workForm.id ? "edit work entry" : "new work entry"}</h2>
             <div className="space-y-4">
               {(["company", "role", "location", "startDate"] as const).map((f) => (
-                <div key={f}>
-                  <label className="block text-xs text-muted mb-1">{f}</label>
+                <div key={f}><label className="block text-xs text-muted mb-1">{f}</label>
                   <input type="text" value={workForm[f]} onChange={(e) => setWorkForm({ ...workForm, [f]: e.target.value })}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
-                </div>
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
               ))}
-              <div>
-                <label className="block text-xs text-muted mb-1">endDate (leave empty for Present)</label>
+              <div><label className="block text-xs text-muted mb-1">endDate (leave empty for Present)</label>
                 <input type="text" value={workForm.endDate} onChange={(e) => setWorkForm({ ...workForm, endDate: e.target.value })}
-                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
-              </div>
-              <div>
-                <label className="block text-xs text-muted mb-1">bullets</label>
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
+              <div><label className="block text-xs text-muted mb-1">bullets</label>
                 {workForm.bullets.map((b, i) => (
                   <div key={i} className="flex gap-2 mb-2">
                     <input type="text" value={b} onChange={(e) => setWorkForm({ ...workForm, bullets: workForm.bullets.map((x, j) => j === i ? e.target.value : x) })}
@@ -225,11 +300,9 @@ export default function ExperienceClient({
                 ))}
                 <button onClick={() => setWorkForm({ ...workForm, bullets: [...workForm.bullets, ""] })} className="text-xs text-accent hover:underline">+ add bullet</button>
               </div>
-              <div>
-                <label className="block text-xs text-muted mb-1">skills (comma-separated)</label>
+              <div><label className="block text-xs text-muted mb-1">skills (comma-separated)</label>
                 <input type="text" value={workForm.skills} onChange={(e) => setWorkForm({ ...workForm, skills: e.target.value })}
-                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
-              </div>
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={saveWork} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">save</button>
@@ -239,21 +312,18 @@ export default function ExperienceClient({
         </div>
       )}
 
-      {/* Education form modal */}
+      {/* Education row form */}
       {eduForm && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
           <div className="bg-surface border border-border w-full max-w-lg p-6 font-mono overflow-y-auto max-h-[90vh]">
             <h2 className="text-accent text-sm mb-4">{eduForm.id ? "edit education entry" : "new education entry"}</h2>
             <div className="space-y-4">
               {(["institution", "degree", "field", "startDate", "endDate", "gpa"] as const).map((f) => (
-                <div key={f}>
-                  <label className="block text-xs text-muted mb-1">{f}</label>
+                <div key={f}><label className="block text-xs text-muted mb-1">{f}</label>
                   <input type="text" value={(eduForm[f] as string) ?? ""} onChange={(e) => setEduForm({ ...eduForm, [f]: e.target.value })}
-                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
-                </div>
+                    className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" /></div>
               ))}
-              <div>
-                <label className="block text-xs text-muted mb-1">notes</label>
+              <div><label className="block text-xs text-muted mb-1">notes</label>
                 {eduForm.notes.map((n, i) => (
                   <div key={i} className="flex gap-2 mb-2">
                     <input type="text" value={n} onChange={(e) => setEduForm({ ...eduForm, notes: eduForm.notes.map((x, j) => j === i ? e.target.value : x) })}
@@ -272,8 +342,66 @@ export default function ExperienceClient({
         </div>
       )}
 
-      {deleteTarget && <ConfirmModal message="delete this entry?" onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-      {toast && <SaveToast message={toast.msg} type={toast.type} onDismiss={() => setToast(null)} />}
+      {/* Bulk edit modal — work */}
+      {bulkEdit && tab === "work" && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
+          <div className="bg-surface border border-border w-full max-w-sm p-6 font-mono">
+            <h2 className="text-accent text-sm mb-1">bulk edit — work</h2>
+            <p className="text-xs text-muted mb-4">{selectedWork.size} entries selected</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-muted mb-2">end date</label>
+                <div className="space-y-2">
+                  {(["no-change", "present", "date"] as const).map((opt) => (
+                    <label key={opt} className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
+                      <input type="radio" name="bulkEndDate" value={opt} checked={bulkEndDate === opt} onChange={() => setBulkEndDate(opt)} className="accent-[#00ff9f]" />
+                      {opt === "no-change" ? "— no change —" : opt === "present" ? "mark as Present" : "set date:"}
+                    </label>
+                  ))}
+                  {bulkEndDate === "date" && (
+                    <input type="text" value={bulkEndDateVal} onChange={(e) => setBulkEndDateVal(e.target.value)} placeholder="e.g. Dec 2024"
+                      className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60 mt-1" />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-muted mb-1">location (leave empty to skip)</label>
+                <input type="text" value={bulkLocation} onChange={(e) => setBulkLocation(e.target.value)}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={applyBulkEdit} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">apply</button>
+              <button onClick={() => setBulkEdit(false)} className="flex-1 border border-border text-muted py-2 text-sm hover:border-accent/40 transition-colors">cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk edit modal — education */}
+      {bulkEdit && tab === "education" && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
+          <div className="bg-surface border border-border w-full max-w-sm p-6 font-mono">
+            <h2 className="text-accent text-sm mb-1">bulk edit — education</h2>
+            <p className="text-xs text-muted mb-4">{selectedEdu.size} entries selected</p>
+            <div>
+              <label className="block text-xs text-muted mb-1">end date (leave empty to skip)</label>
+              <input type="text" value={bulkEduEndDate} onChange={(e) => setBulkEduEndDate(e.target.value)} placeholder="e.g. 2021"
+                className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={applyBulkEdit} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">apply</button>
+              <button onClick={() => setBulkEdit(false)} className="flex-1 border border-border text-muted py-2 text-sm hover:border-accent/40 transition-colors">cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && <ConfirmModal message="delete this entry?" onConfirm={confirmRowDelete} onCancel={() => setDeleteTarget(null)} />}
+      {bulkDeleteConfirm && <ConfirmModal message={`delete ${activeSelected.size} entries?`} onConfirm={confirmBulkDelete} onCancel={() => setBulkDeleteConfirm(false)} />}
+      {toast && <SaveToast message={toast.msg} type={toast.type} onDismiss={() => setToast(null)} offsetBottom={activeSelected.size > 0} />}
+
+      <BulkActionBar count={activeSelected.size} onEdit={() => setBulkEdit(true)} onDelete={() => setBulkDeleteConfirm(true)} onClear={clearSelection} />
     </div>
   );
 }

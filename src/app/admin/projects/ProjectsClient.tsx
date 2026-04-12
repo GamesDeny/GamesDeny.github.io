@@ -5,38 +5,59 @@ import type { Project } from "@/types";
 import Badge from "@/components/ui/Badge";
 import ConfirmModal from "@/components/admin/ui/ConfirmModal";
 import SaveToast from "@/components/admin/ui/SaveToast";
+import BulkActionBar from "@/components/admin/ui/BulkActionBar";
 import { Plus, Pencil, Trash2, ExternalLink, GitFork } from "lucide-react";
 
-const EMPTY: Omit<Project, "id"> = {
-  name: "", description: "", techStack: [], githubUrl: "", liveUrl: "", featured: false,
-};
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+const EMPTY: Project = { id: "", name: "", description: "", techStack: [], githubUrl: "", liveUrl: "", featured: false };
 
 interface FormState extends Omit<Project, "techStack"> { techStack: string; }
 
-function toFormState(p: Project): FormState {
-  return { ...p, techStack: p.techStack.join(", ") };
+const toForm = (p: Project): FormState => ({ ...p, techStack: p.techStack.join(", ") });
+const fromForm = (f: FormState): Omit<Project, "id"> => ({
+  ...f, techStack: f.techStack.split(",").map((s) => s.trim()).filter(Boolean),
+});
+
+async function runBulk<T>(ids: T[], fn: (id: T) => Promise<Response>) {
+  const results = await Promise.allSettled(ids.map(fn));
+  return ids.filter((_, i) => results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<Response>).value.ok);
 }
-function fromFormState(f: FormState): Omit<Project, "id"> {
-  return { ...f, techStack: f.techStack.split(",").map((s) => s.trim()).filter(Boolean) };
-}
+
+// ─── component ────────────────────────────────────────────────────────────────
 
 export default function ProjectsClient({ initial }: { initial: Project[] }) {
   const [projects, setProjects] = useState(initial);
+
+  // row-level
   const [form, setForm] = useState<FormState | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // bulk
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkEdit, setBulkEdit] = useState(false);
+  const [bulkFeatured, setBulkFeatured] = useState<"no-change" | "true" | "false">("no-change");
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const showToast = (msg: string, type: "success" | "error" = "success") => setToast({ msg, type });
 
-  const showToast = (msg: string, type: "success" | "error" = "success") =>
-    setToast({ msg, type });
+  // selection helpers
+  const allIds = projects.map((p) => p.id!).filter(Boolean);
+  const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
+  const toggleOne = (id: string) => setSelected((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
+  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(allIds));
+  const clearSelection = () => setSelected(new Set());
 
-  const openNew = () => { setForm({ ...EMPTY, id: "", techStack: "" }); setEditingId(null); };
-  const openEdit = (p: Project) => { setForm(toFormState(p)); setEditingId(p.id ?? null); };
+  // row edit/delete
+  const openNew = () => { setForm(toForm(EMPTY)); setEditingId(null); };
+  const openEdit = (p: Project) => { setForm(toForm(p)); setEditingId(p.id ?? null); };
   const closeForm = () => { setForm(null); setEditingId(null); };
 
   const save = async () => {
     if (!form) return;
-    const body = fromFormState(form);
+    const body = fromForm(form);
     const isEdit = !!editingId;
     const res = await fetch("/api/admin/projects", {
       method: isEdit ? "PUT" : "POST",
@@ -45,14 +66,12 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
     });
     if (!res.ok) return showToast("save failed", "error");
     const saved: Project = await res.json();
-    setProjects((prev) =>
-      isEdit ? prev.map((p) => (p.id === editingId ? saved : p)) : [...prev, saved]
-    );
+    setProjects((prev) => isEdit ? prev.map((p) => (p.id === editingId ? saved : p)) : [...prev, saved]);
     closeForm();
     showToast(isEdit ? "project updated" : "project created");
   };
 
-  const confirmDelete = async () => {
+  const confirmRowDelete = async () => {
     if (!deleteId) return;
     const res = await fetch(`/api/admin/projects?id=${deleteId}`, { method: "DELETE" });
     if (!res.ok) return showToast("delete failed", "error");
@@ -61,8 +80,36 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
     showToast("project deleted");
   };
 
+  // bulk delete
+  const confirmBulkDelete = async () => {
+    const ids = [...selected];
+    const succeeded = await runBulk(ids, (id) => fetch(`/api/admin/projects?id=${id}`, { method: "DELETE" }));
+    setProjects((prev) => prev.filter((p) => !succeeded.includes(p.id!)));
+    clearSelection();
+    setBulkDeleteConfirm(false);
+    const failed = ids.length - succeeded.length;
+    showToast(failed > 0 ? `deleted ${succeeded.length}, ${failed} failed` : `deleted ${succeeded.length} projects`, failed > 0 ? "error" : "success");
+  };
+
+  // bulk edit
+  const applyBulkEdit = async () => {
+    if (bulkFeatured === "no-change") { setBulkEdit(false); return; }
+    const patch = { featured: bulkFeatured === "true" };
+    const targets = projects.filter((p) => selected.has(p.id!));
+    const succeeded = await runBulk(targets, (p) =>
+      fetch("/api/admin/projects", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...p, ...patch }) })
+    );
+    const succeededIds = new Set(succeeded.map((p) => p.id!));
+    setProjects((prev) => prev.map((p) => succeededIds.has(p.id!) ? { ...p, ...patch } : p));
+    clearSelection();
+    setBulkEdit(false);
+    setBulkFeatured("no-change");
+    const failed = targets.length - succeeded.length;
+    showToast(failed > 0 ? `updated ${succeeded.length}, ${failed} failed` : `updated ${succeeded.length} projects`, failed > 0 ? "error" : "success");
+  };
+
   return (
-    <div>
+    <div className="pb-16">
       <div className="flex items-center justify-between mb-8">
         <div>
           <p className="text-accent text-sm mb-1">&gt; admin / projects</p>
@@ -73,11 +120,13 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
         </button>
       </div>
 
-      {/* Table */}
       <div className="border border-border overflow-hidden">
         <table className="w-full text-sm font-mono">
           <thead className="bg-surface border-b border-border text-muted text-xs">
             <tr>
+              <th className="px-4 py-3 w-8">
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#00ff9f]" />
+              </th>
               <th className="text-left px-4 py-3">name</th>
               <th className="text-left px-4 py-3">stack</th>
               <th className="text-left px-4 py-3">featured</th>
@@ -87,7 +136,10 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
           </thead>
           <tbody>
             {projects.map((p) => (
-              <tr key={p.id} className="border-b border-border hover:bg-surface/50">
+              <tr key={p.id} className={`border-b border-border hover:bg-surface/50 ${selected.has(p.id!) ? "bg-accent/5" : ""}`}>
+                <td className="px-4 py-3">
+                  <input type="checkbox" checked={selected.has(p.id!)} onChange={() => toggleOne(p.id!)} className="accent-[#00ff9f]" />
+                </td>
                 <td className="px-4 py-3 text-text-primary">{p.name}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
@@ -95,9 +147,7 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
                     {p.techStack.length > 3 && <span className="text-muted text-xs">+{p.techStack.length - 3}</span>}
                   </div>
                 </td>
-                <td className="px-4 py-3">
-                  {p.featured && <span className="text-accent text-xs">✓</span>}
-                </td>
+                <td className="px-4 py-3">{p.featured && <span className="text-accent text-xs">✓</span>}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-3">
                     {p.githubUrl && <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-accent"><GitFork size={13} /></a>}
@@ -113,13 +163,13 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
               </tr>
             ))}
             {projects.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-muted text-xs">no projects yet</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted text-xs">no projects yet</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Form panel */}
+      {/* Row edit modal */}
       {form && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
           <div className="bg-surface border border-border w-full max-w-lg p-6 font-mono overflow-y-auto max-h-[90vh]">
@@ -129,30 +179,18 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
                 <div key={field}>
                   <label className="block text-xs text-muted mb-1">{field}</label>
                   {field === "description" ? (
-                    <textarea
-                      rows={3}
-                      value={form[field]}
-                      onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60 resize-none"
-                    />
+                    <textarea rows={3} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+                      className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60 resize-none" />
                   ) : (
-                    <input
-                      type="text"
-                      value={form[field] ?? ""}
-                      onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                      className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60"
-                    />
+                    <input type="text" value={form[field] ?? ""} onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+                      className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
                   )}
                 </div>
               ))}
               <div>
                 <label className="block text-xs text-muted mb-1">tech stack (comma-separated)</label>
-                <input
-                  type="text"
-                  value={form.techStack}
-                  onChange={(e) => setForm({ ...form, techStack: e.target.value })}
-                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60"
-                />
+                <input type="text" value={form.techStack} onChange={(e) => setForm({ ...form, techStack: e.target.value })}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60" />
               </div>
               <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
                 <input type="checkbox" checked={!!form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="accent-[#00ff9f]" />
@@ -161,20 +199,40 @@ export default function ProjectsClient({ initial }: { initial: Project[] }) {
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={save} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">save</button>
-              <button onClick={closeForm} className="flex-1 border border-border text-muted py-2 text-sm hover:border-accent/40 hover:text-text-primary transition-colors">cancel</button>
+              <button onClick={closeForm} className="flex-1 border border-border text-muted py-2 text-sm hover:border-accent/40 transition-colors">cancel</button>
             </div>
           </div>
         </div>
       )}
 
-      {deleteId && (
-        <ConfirmModal
-          message="delete this project?"
-          onConfirm={confirmDelete}
-          onCancel={() => setDeleteId(null)}
-        />
+      {/* Bulk edit modal */}
+      {bulkEdit && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
+          <div className="bg-surface border border-border w-full max-w-sm p-6 font-mono">
+            <h2 className="text-accent text-sm mb-1">bulk edit</h2>
+            <p className="text-xs text-muted mb-4">{selected.size} projects selected</p>
+            <div>
+              <label className="block text-xs text-muted mb-1">featured</label>
+              <select value={bulkFeatured} onChange={(e) => setBulkFeatured(e.target.value as typeof bulkFeatured)}
+                className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60">
+                <option value="no-change">— no change —</option>
+                <option value="true">set featured</option>
+                <option value="false">remove featured</option>
+              </select>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={applyBulkEdit} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">apply</button>
+              <button onClick={() => setBulkEdit(false)} className="flex-1 border border-border text-muted py-2 text-sm hover:border-accent/40 transition-colors">cancel</button>
+            </div>
+          </div>
+        </div>
       )}
-      {toast && <SaveToast message={toast.msg} type={toast.type} onDismiss={() => setToast(null)} />}
+
+      {deleteId && <ConfirmModal message="delete this project?" onConfirm={confirmRowDelete} onCancel={() => setDeleteId(null)} />}
+      {bulkDeleteConfirm && <ConfirmModal message={`delete ${selected.size} projects?`} onConfirm={confirmBulkDelete} onCancel={() => setBulkDeleteConfirm(false)} />}
+      {toast && <SaveToast message={toast.msg} type={toast.type} onDismiss={() => setToast(null)} offsetBottom={selected.size > 0} />}
+
+      <BulkActionBar count={selected.size} onEdit={() => setBulkEdit(true)} onDelete={() => setBulkDeleteConfirm(true)} onClear={clearSelection} />
     </div>
   );
 }

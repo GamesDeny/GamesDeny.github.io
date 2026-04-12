@@ -5,19 +5,41 @@ import type { Language, ProficiencyLevel } from "@/types";
 import SkillBar from "@/components/ui/SkillBar";
 import ConfirmModal from "@/components/admin/ui/ConfirmModal";
 import SaveToast from "@/components/admin/ui/SaveToast";
+import BulkActionBar from "@/components/admin/ui/BulkActionBar";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const PROFICIENCY_LEVELS: ProficiencyLevel[] = ["Expert", "Proficient", "Familiar", "Learning"];
 const EMPTY: Language = { name: "", proficiency: "Familiar", percentage: 50 };
 
+async function runBulk<T>(items: T[], fn: (item: T) => Promise<Response>) {
+  const results = await Promise.allSettled(items.map(fn));
+  return items.filter((_, i) => results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<Response>).value.ok);
+}
+
 export default function LanguagesClient({ initial }: { initial: Language[] }) {
   const [languages, setLanguages] = useState(initial);
+
+  // row-level
   const [form, setForm] = useState<Language | null>(null);
   const [originalName, setOriginalName] = useState<string | null>(null);
   const [deleteName, setDeleteName] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
+  // bulk
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkEdit, setBulkEdit] = useState(false);
+  const [bulkProficiency, setBulkProficiency] = useState<"" | ProficiencyLevel>("");
+  const [bulkApplyPct, setBulkApplyPct] = useState(false);
+  const [bulkPct, setBulkPct] = useState(50);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const showToast = (msg: string, type: "success" | "error" = "success") => setToast({ msg, type });
+
+  const allNames = languages.map((l) => l.name);
+  const allSelected = allNames.length > 0 && allNames.every((n) => selected.has(n));
+  const toggleOne = (name: string) => setSelected((prev) => { const s = new Set(prev); s.has(name) ? s.delete(name) : s.add(name); return s; });
+  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(allNames));
+  const clearSelection = () => setSelected(new Set());
 
   const openNew = () => { setForm({ ...EMPTY }); setOriginalName(null); };
   const openEdit = (l: Language) => { setForm({ ...l }); setOriginalName(l.name); };
@@ -32,15 +54,13 @@ export default function LanguagesClient({ initial }: { initial: Language[] }) {
     });
     if (!res.ok) return showToast("save failed", "error");
     const saved: Language = await res.json();
-    setLanguages((prev) =>
-      isEdit ? prev.map((l) => l.name === originalName ? saved : l) : [...prev, saved]
-    );
+    setLanguages((prev) => isEdit ? prev.map((l) => l.name === originalName ? saved : l) : [...prev, saved]);
     setForm(null);
     setOriginalName(null);
     showToast(isEdit ? "language updated" : "language added");
   };
 
-  const confirmDelete = async () => {
+  const confirmRowDelete = async () => {
     if (!deleteName) return;
     const res = await fetch(`/api/admin/languages?name=${encodeURIComponent(deleteName)}`, { method: "DELETE" });
     if (!res.ok) return showToast("delete failed", "error");
@@ -49,8 +69,40 @@ export default function LanguagesClient({ initial }: { initial: Language[] }) {
     showToast("language deleted");
   };
 
+  const confirmBulkDelete = async () => {
+    const names = [...selected];
+    const succeeded = await runBulk(names, (name) =>
+      fetch(`/api/admin/languages?name=${encodeURIComponent(name)}`, { method: "DELETE" })
+    );
+    setLanguages((prev) => prev.filter((l) => !succeeded.includes(l.name)));
+    clearSelection();
+    setBulkDeleteConfirm(false);
+    const failed = names.length - succeeded.length;
+    showToast(failed > 0 ? `deleted ${succeeded.length}, ${failed} failed` : `deleted ${succeeded.length} languages`, failed > 0 ? "error" : "success");
+  };
+
+  const applyBulkEdit = async () => {
+    const patch: Partial<Language> = {};
+    if (bulkProficiency) patch.proficiency = bulkProficiency;
+    if (bulkApplyPct) patch.percentage = bulkPct;
+    if (Object.keys(patch).length === 0) { setBulkEdit(false); return; }
+
+    const targets = languages.filter((l) => selected.has(l.name));
+    const succeeded = await runBulk(targets, (l) =>
+      fetch("/api/admin/languages", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...l, ...patch }) })
+    );
+    const succeededNames = new Set(succeeded.map((l) => l.name));
+    setLanguages((prev) => prev.map((l) => succeededNames.has(l.name) ? { ...l, ...patch } : l));
+    clearSelection();
+    setBulkEdit(false);
+    setBulkProficiency("");
+    setBulkApplyPct(false);
+    const failed = targets.length - succeeded.length;
+    showToast(failed > 0 ? `updated ${succeeded.length}, ${failed} failed` : `updated ${succeeded.length} languages`, failed > 0 ? "error" : "success");
+  };
+
   return (
-    <div>
+    <div className="pb-16">
       <div className="flex items-center justify-between mb-8">
         <div>
           <p className="text-accent text-sm mb-1">&gt; admin / languages</p>
@@ -65,6 +117,9 @@ export default function LanguagesClient({ initial }: { initial: Language[] }) {
         <table className="w-full text-sm font-mono">
           <thead className="bg-surface border-b border-border text-muted text-xs">
             <tr>
+              <th className="px-4 py-3 w-8">
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#00ff9f]" />
+              </th>
               <th className="text-left px-4 py-3">name</th>
               <th className="text-left px-4 py-3">proficiency</th>
               <th className="text-left px-4 py-3 w-48">bar</th>
@@ -74,7 +129,10 @@ export default function LanguagesClient({ initial }: { initial: Language[] }) {
           </thead>
           <tbody>
             {languages.map((l) => (
-              <tr key={l.name} className="border-b border-border hover:bg-surface/50">
+              <tr key={l.name} className={`border-b border-border hover:bg-surface/50 ${selected.has(l.name) ? "bg-accent/5" : ""}`}>
+                <td className="px-4 py-3">
+                  <input type="checkbox" checked={selected.has(l.name)} onChange={() => toggleOne(l.name)} className="accent-[#00ff9f]" />
+                </td>
                 <td className="px-4 py-3 text-text-primary">{l.name}</td>
                 <td className="px-4 py-3 text-muted text-xs">{l.proficiency}</td>
                 <td className="px-4 py-3 w-48"><SkillBar percentage={l.percentage} /></td>
@@ -87,11 +145,12 @@ export default function LanguagesClient({ initial }: { initial: Language[] }) {
                 </td>
               </tr>
             ))}
-            {languages.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-muted text-xs">no languages yet</td></tr>}
+            {languages.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-muted text-xs">no languages yet</td></tr>}
           </tbody>
         </table>
       </div>
 
+      {/* Row edit modal */}
       {form && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
           <div className="bg-surface border border-border w-full max-w-sm p-6 font-mono">
@@ -111,9 +170,7 @@ export default function LanguagesClient({ initial }: { initial: Language[] }) {
               </div>
               <div>
                 <label className="block text-xs text-muted mb-1">percentage — {form.percentage}%</label>
-                <input type="range" min={0} max={100} value={form.percentage}
-                  onChange={(e) => setForm({ ...form, percentage: Number(e.target.value) })}
-                  className="w-full accent-[#00ff9f]" />
+                <input type="range" min={0} max={100} value={form.percentage} onChange={(e) => setForm({ ...form, percentage: Number(e.target.value) })} className="w-full accent-[#00ff9f]" />
                 <div className="mt-2"><SkillBar percentage={form.percentage} /></div>
               </div>
             </div>
@@ -125,8 +182,44 @@ export default function LanguagesClient({ initial }: { initial: Language[] }) {
         </div>
       )}
 
-      {deleteName && <ConfirmModal message={`delete "${deleteName}"?`} onConfirm={confirmDelete} onCancel={() => setDeleteName(null)} />}
-      {toast && <SaveToast message={toast.msg} type={toast.type} onDismiss={() => setToast(null)} />}
+      {/* Bulk edit modal */}
+      {bulkEdit && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-6">
+          <div className="bg-surface border border-border w-full max-w-sm p-6 font-mono">
+            <h2 className="text-accent text-sm mb-1">bulk edit</h2>
+            <p className="text-xs text-muted mb-4">{selected.size} languages selected</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-muted mb-1">proficiency</label>
+                <select value={bulkProficiency} onChange={(e) => setBulkProficiency(e.target.value as typeof bulkProficiency)}
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent/60">
+                  <option value="">— no change —</option>
+                  {PROFICIENCY_LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-xs text-muted mb-2 cursor-pointer">
+                  <input type="checkbox" checked={bulkApplyPct} onChange={(e) => setBulkApplyPct(e.target.checked)} className="accent-[#00ff9f]" />
+                  set percentage — {bulkPct}%
+                </label>
+                <input type="range" min={0} max={100} value={bulkPct} disabled={!bulkApplyPct}
+                  onChange={(e) => setBulkPct(Number(e.target.value))}
+                  className={`w-full accent-[#00ff9f] ${!bulkApplyPct ? "opacity-40" : ""}`} />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={applyBulkEdit} className="flex-1 border border-accent text-accent py-2 text-sm hover:bg-accent hover:text-background transition-colors">apply</button>
+              <button onClick={() => setBulkEdit(false)} className="flex-1 border border-border text-muted py-2 text-sm hover:border-accent/40 transition-colors">cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteName && <ConfirmModal message={`delete "${deleteName}"?`} onConfirm={confirmRowDelete} onCancel={() => setDeleteName(null)} />}
+      {bulkDeleteConfirm && <ConfirmModal message={`delete ${selected.size} languages?`} onConfirm={confirmBulkDelete} onCancel={() => setBulkDeleteConfirm(false)} />}
+      {toast && <SaveToast message={toast.msg} type={toast.type} onDismiss={() => setToast(null)} offsetBottom={selected.size > 0} />}
+
+      <BulkActionBar count={selected.size} onEdit={() => setBulkEdit(true)} onDelete={() => setBulkDeleteConfirm(true)} onClear={clearSelection} />
     </div>
   );
 }

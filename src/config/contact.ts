@@ -4,6 +4,7 @@
  */
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_NAME ?? "Your Name",
+  roadmapUsername: process.env.NEXT_PUBLIC_ROADMAP_USERNAME ?? "",
 } as const;
 
 export const contact = {
