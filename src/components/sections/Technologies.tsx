@@ -55,7 +55,16 @@ export default function Technologies({ experience }: TechnologiesProps) {
               <div
                 key={name}
                 title={`used in ${count} ${count === 1 ? "role" : "roles"}`}
-                className="group flex items-center gap-2.5 border border-border bg-surface px-4 py-2.5 font-mono text-sm text-text-secondary hover:border-accent/40 hover:text-text-primary transition-colors duration-200"
+                className="group flex items-center gap-2.5 border bg-surface px-4 py-2.5 font-mono text-sm transition-colors duration-200"
+                style={
+                  icon
+                    ? {
+                        borderColor: `#${icon.hex}60`,
+                        color: `#${icon.hex}`,
+                        backgroundColor: `#${icon.hex}0e`,
+                      }
+                    : undefined
+                }
               >
                 {icon ? (
                   <TechIcon path={icon.path} hex={icon.hex} size={18} />

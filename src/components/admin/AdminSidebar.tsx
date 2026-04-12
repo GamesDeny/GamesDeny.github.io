@@ -3,16 +3,17 @@
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, FolderGit, Briefcase, Code2, Wrench, Languages, LogOut,
+  LayoutDashboard, FolderGit, Briefcase, Code2, Wrench, Languages, Egg, LogOut,
 } from "lucide-react";
 
 const links = [
-  { href: "/admin/dashboard",  label: "dashboard",   icon: LayoutDashboard },
-  { href: "/admin/projects",   label: "projects",    icon: FolderGit },
-  { href: "/admin/experience", label: "experience",  icon: Briefcase },
-  { href: "/admin/languages",  label: "languages",   icon: Code2 },
-  { href: "/admin/skills",     label: "skills",      icon: Wrench },
-  { href: "/admin/i18n",       label: "i18n",        icon: Languages },
+  { href: "/admin/dashboard",    label: "dashboard",    icon: LayoutDashboard },
+  { href: "/admin/projects",     label: "projects",     icon: FolderGit },
+  { href: "/admin/experience",   label: "experience",   icon: Briefcase },
+  { href: "/admin/languages",    label: "languages",    icon: Code2 },
+  { href: "/admin/skills",       label: "skills",       icon: Wrench },
+  { href: "/admin/i18n",         label: "i18n",         icon: Languages },
+  { href: "/admin/easter-eggs",  label: "easter eggs",  icon: Egg },
 ];
 
 export default function AdminSidebar() {

@@ -116,6 +116,7 @@ Thumbs.db
 .netlify
 
 # AI files
+.claude/
 ai_context/
 AGENTS.md
 CLAUDE.md

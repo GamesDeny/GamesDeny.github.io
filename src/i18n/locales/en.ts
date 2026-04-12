@@ -1,4 +1,21 @@
 export interface Translations {
+  easterEggs: {
+    doom: {
+      header: string;
+      mode: string;
+      health: string;
+      armor: string;
+      ammo: string;
+      continue: string;
+    };
+    forkBomb: {
+      panic: string;
+      detail: string;
+      reboot: string;
+      joke: string;
+      continue: string;
+    };
+  };
   nav: {
     about: string;
     projects: string;
@@ -50,6 +67,23 @@ export interface Translations {
 }
 
 const en: Translations = {
+  easterEggs: {
+    doom: {
+      header: "══ DOOM ══ cheat code detected ══",
+      mode: "DEGREELESSNESS MODE ON",
+      health: "Health",
+      armor: "Armor",
+      ammo: "Ammo",
+      continue: "press any key to continue_",
+    },
+    forkBomb: {
+      panic: "KERNEL PANIC — not syncing: fork bomb detected",
+      detail: "too many processes — system resources exhausted",
+      reboot: "[    0.000000] Rebooting in 3 seconds...",
+      joke: "just kidding :)",
+      continue: "press any key to continue_",
+    },
+  },
   nav: {
     about: "about",
     projects: "projects",

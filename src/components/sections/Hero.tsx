@@ -5,8 +5,15 @@ import { useState } from "react";
 import { useI18n } from "@/i18n";
 import { siteConfig } from "@/config/contact";
 import { ChevronDown } from "lucide-react";
+import DoomMode from "@/components/easter-eggs/DoomMode";
+import LegoTardis from "@/components/easter-eggs/LegoTardis";
 
-export default function Hero() {
+interface HeroProps {
+  doomModeEnabled?: boolean;
+  legoTardisEnabled?: boolean;
+}
+
+export default function Hero({ doomModeEnabled = false, legoTardisEnabled = false }: HeroProps) {
   const { t } = useI18n();
   const [imgError, setImgError] = useState(false);
 
@@ -23,9 +30,11 @@ export default function Hero() {
           <p className="text-muted font-mono text-sm mb-2">{t.hero.greeting}</p>
 
           {/* Name */}
-          <h1 className="text-4xl md:text-6xl font-mono font-bold text-accent tracking-tight mb-4">
+          <h1 id="hero-name" className="text-4xl md:text-6xl font-mono font-bold text-accent tracking-tight mb-4">
             {siteConfig.name}
           </h1>
+          <DoomMode enabled={doomModeEnabled} />
+          <LegoTardis enabled={legoTardisEnabled} />
 
           {/* Tagline */}
           <h2 className="text-lg md:text-2xl font-mono text-text-secondary mb-8">
@@ -58,7 +67,7 @@ export default function Hero() {
         </div>
 
         {/* Right — photo */}
-        <div className="shrink-0 w-56 h-56 md:w-72 md:h-72 border border-accent/30 bg-surface relative overflow-hidden">
+        <div id="hero-avatar" className="shrink-0 w-56 h-56 md:w-72 md:h-72 border border-accent/30 bg-surface relative overflow-hidden">
           {imgError ? (
             <div className="w-full h-full flex items-center justify-center font-mono text-xs text-muted text-center px-4">
               image not available

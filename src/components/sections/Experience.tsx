@@ -5,6 +5,7 @@ import { useI18n } from "@/i18n";
 import { localized, localizedArray } from "@/lib/i18n-utils";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Badge from "@/components/ui/Badge";
+import { getTechIcon } from "@/lib/tech-icons";
 
 interface ExperienceProps {
   experience: WorkEntry[];
@@ -55,9 +56,10 @@ export default function Experience({ experience, education }: ExperienceProps) {
 
               {entry.skills && (
                 <div className="flex flex-wrap gap-2">
-                  {entry.skills.map((s) => (
-                    <Badge key={s} label={s} />
-                  ))}
+                  {entry.skills.map((s) => {
+                    const icon = getTechIcon(s);
+                    return <Badge key={s} label={s} color={icon?.hex} />;
+                  })}
                 </div>
               )}
             </div>

@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal Portfolio
 
-## Getting Started
+Dark/hacker-aesthetic personal portfolio built with Next.js 16, Tailwind CSS v4, and TypeScript.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework**: Next.js 16.2.3 (App Router, React 19)
+- **Styling**: Tailwind CSS v4, JetBrains Mono, neon-green accent (`#00ff9f`)
+- **Icons**: `lucide-react`, `simple-icons` (brand logos in Technologies section)
+- **i18n**: Custom — locale files in `src/i18n/locales/`, `useI18n()` hook, `localized()` helper
+- **Content**: JSON files in `content/` (override seed data in `src/data/`)
+- **Auth**: Cookie-based (`admin_session` = `ADMIN_PASSWORD` env var), Next.js middleware
+
+## Project Structure
+
+```
+src/
+  app/
+    page.tsx                  # Public single-page site
+    admin/                    # Admin panel (protected by middleware)
+      dashboard/
+      projects/
+      experience/
+      languages/
+      skills/
+      i18n/
+    api/admin/                # REST API routes (auth, projects, experience, languages, skills, i18n, education)
+  components/
+    layout/   Navbar, Footer
+    sections/ Hero, Projects, Experience, Technologies, Contact
+    ui/       ProjectCard, SkillBar, Badge, SectionTitle, ...
+    admin/    AdminSidebar, BulkActionBar, ConfirmModal, SaveToast, ...
+  lib/
+    data.ts           getProjects(), getExperience(), getLanguages(), getSkills(), getEducation()
+    i18n-utils.ts     localized(), localizedArray()
+    tech-icons.ts     getTechIcon() — simple-icons lookup by tag name
+    admin/auth.ts     verifySession()
+  types/index.ts      Project, WorkEntry, EducationEntry, Language, Skill, LocalizedString, LocalizedStringArray
+  i18n/               useI18n hook, availableLocales, locale files (en, it)
+  config/             siteConfig, contact (social links from env vars)
+content/
+  projects.json / experience.json / education.json / languages.json / skills.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Multilingual Content
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Translatable fields use `LocalizedString = Record<string, string>` and `LocalizedStringArray = Record<string, string[]>`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Public components call `localized(val, locale)` / `localizedArray(val, locale)` with EN fallback.
+Admin forms show one input per locale (labeled `[en]`, `[it]`, …).
 
-## Learn More
+## Admin Panel
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Purpose |
+|---|---|
+| `/admin/login` | Cookie auth |
+| `/admin/dashboard` | Overview |
+| `/admin/projects` | CRUD, tag picker, per-locale name/description |
+| `/admin/experience` | Work + Education CRUD, tag picker, per-locale fields |
+| `/admin/languages` | Programming language tags with proficiency |
+| `/admin/skills` | Non-language tech tags (Docker, Kubernetes, …) |
+| `/admin/i18n` | Translation table — one column per locale, paste JSON, missing-only filter |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Languages + Skills form the shared tag pool used in Projects tech stack and Experience skills.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment Variables
 
-## Deploy on Vercel
+```env
+ADMIN_PASSWORD=...
+NEXT_PUBLIC_LEETCODE=https://leetcode.com/u/...
+NEXT_PUBLIC_ROADMAP_USERNAME=...   # optional
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev    # http://localhost:3000
+npm run build  # production build
+```

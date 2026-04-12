@@ -1,6 +1,23 @@
 import type { Translations } from "./en";
 
 const it: Translations = {
+  easterEggs: {
+    doom: {
+      header: "══ DOOM ══ codice cheat rilevato ══",
+      mode: "MODALITÀ SENZA GRADI ATTIVA",
+      health: "Salute",
+      armor: "Armatura",
+      ammo: "Munizioni",
+      continue: "premi un tasto per continuare_",
+    },
+    forkBomb: {
+      panic: "KERNEL PANIC — impossibile sincronizzare: fork bomb rilevata",
+      detail: "troppi processi — risorse di sistema esaurite",
+      reboot: "[    0.000000] Riavvio in 3 secondi...",
+      joke: "stavo scherzando :)",
+      continue: "premi un tasto per continuare_",
+    },
+  },
   nav: {
     about: "su di me",
     projects: "progetti",

@@ -4,6 +4,7 @@ import type { Project } from "@/types";
 import { useI18n } from "@/i18n";
 import { localized } from "@/lib/i18n-utils";
 import Badge from "./Badge";
+import { getTechIcon } from "@/lib/tech-icons";
 import { GitFork, ExternalLink } from "lucide-react";
 
 interface ProjectCardProps {
@@ -34,9 +35,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
       {/* Tech stack */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {project.techStack.map((tech) => (
-          <Badge key={tech} label={tech} />
-        ))}
+        {project.techStack.map((tech) => {
+          const icon = getTechIcon(tech);
+          return <Badge key={tech} label={tech} color={icon?.hex} />;
+        })}
       </div>
 
       {/* Links */}

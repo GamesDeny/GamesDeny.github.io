@@ -60,6 +60,12 @@ export interface RoadmapConfig {
   username: string;
 }
 
+export interface EasterEggsConfig {
+  forkBomb: boolean;
+  doomMode: boolean;
+  legoTardis: boolean;
+}
+
 export interface PersonalInfo {
   name: string;
   tagline: string;
