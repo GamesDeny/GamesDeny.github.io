@@ -1,9 +1,42 @@
 {
+  "easterEggs": {
+    "doom": {
+      "header": "══ DOOM ══ cheat code detected ══",
+      "mode": "DEGREELESSNESS MODE ON",
+      "health": "Health",
+      "armor": "Armor",
+      "ammo": "Ammo",
+      "continue": "press any key to continue_"
+    },
+    "forkBomb": {
+      "panic": "KERNEL PANIC — not syncing: fork bomb detected",
+      "detail": "too many processes — system resources exhausted",
+      "reboot": "[    0.000000] Rebooting in 3 seconds...",
+      "joke": "just kidding :)",
+      "continue": "press any key to continue_"
+    },
+    "cooking": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "ready": "{meal}-ms is ready to be served",
+      "continue": "press any key to continue_"
+    },
+    "music": {
+      "stop": "press any key to stop_"
+    },
+    "thisIsFine": {
+      "fine": "This is fine.",
+      "caption": "Deploying to prod on a Friday.",
+      "continue": "press any key to continue_"
+    }
+  },
   "nav": {
     "about": "about",
     "projects": "projects",
     "experience": "experience",
     "languages": "languages",
+    "technologies": "technologies",
     "contact": "contact"
   },
   "hero": {
@@ -34,6 +67,10 @@
     "proficient": "Proficient",
     "familiar": "Familiar",
     "learning": "Learning"
+  },
+  "technologies": {
+    "title": "technologies",
+    "subtitle": "Skills from my work experience"
   },
   "contact": {
     "title": "contact",

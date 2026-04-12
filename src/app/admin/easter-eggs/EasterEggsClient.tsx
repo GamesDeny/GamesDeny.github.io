@@ -45,8 +45,8 @@ const EGGS: EggDef[] = [
   {
     key: "thisIsFine",
     label: "this is fine",
-    description: "Switch between sections 5 times in under 3 seconds to trigger a Doom-style fire rising from the bottom, the dog sitting calmly with his coffee.",
-    trigger: "5 section switches within 3 seconds",
+    description: "Click any navbar section link 5 times within 4 seconds to trigger a Doom-style fire rising from the bottom, the dog sitting calmly with his coffee.",
+    trigger: "5× click any nav link within 4 seconds",
   },
 ];
 

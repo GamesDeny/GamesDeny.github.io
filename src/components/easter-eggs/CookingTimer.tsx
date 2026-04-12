@@ -203,7 +203,7 @@ export default function CookingTimer() {
         {phase === "reveal" && (
           <div className="text-center space-y-10">
             <div className="egg-food-pop text-center">
-              <div className="text-[7rem] leading-none">{foodEmoji}</div>
+              <div className="text-[7rem] leading-none" style={{ filter: "drop-shadow(0 0 12px rgba(255,220,100,0.6))" }}>{foodEmoji}</div>
               <p className="text-xs text-muted mt-3 tracking-widest">{foodLabel}</p>
             </div>
 

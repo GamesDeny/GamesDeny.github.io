@@ -188,8 +188,9 @@ export default function MatrixBoombox() {
     if (active) return;
 
     const onDown = (e: KeyboardEvent) => {
-      if (e.key !== " " || e.repeat) return;
-      e.preventDefault();
+      if (e.key !== " ") return;
+      e.preventDefault(); // always block scroll, even on repeat
+      if (e.repeat) return;
       holdStartRef.current = Date.now();
       setHolding(true);
       holdTimerRef.current = setInterval(() => {

@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n";
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const SECTION_IDS   = ["hero", "projects", "experience", "languages", "technologies", "contact"];
-const CHANGES_NEEDED = 5;    // section switches needed
-const WINDOW_MS      = 3000; // within this many ms
+const CLICKS_NEEDED = 5;
+const WINDOW_MS     = 4000; // sliding window to reset if user stops
 
 // Fire buffer dimensions (low-res, scaled up for pixel art look)
 const FW = 160;
@@ -30,45 +29,33 @@ export default function ThisIsFine() {
   const [active,   setActive]   = useState(false);
   const [showDog,  setShowDog]  = useState(false);
 
-  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
   const offscreenRef = useRef<HTMLCanvasElement | null>(null);
-  const fireRef     = useRef<Uint8Array>(new Uint8Array(FW * FH));
+  const fireRef      = useRef<Uint8Array>(new Uint8Array(FW * FH));
   const intensityRef = useRef(0);
-  const rafRef      = useRef<number | null>(null);
-  const changesRef  = useRef<number[]>([]);
-  const lastSecRef  = useRef<string>("");
+  const rafRef       = useRef<number | null>(null);
+  const clicksRef    = useRef<number[]>([]);
 
-  // ── trigger: rapid section switching ──────────────────────────────────
+  // ── trigger: click nav links 5 times ──────────────────────────────────
   useEffect(() => {
     if (active) return;
 
-    const sections = SECTION_IDS
-      .map(id => document.getElementById(id))
-      .filter(Boolean) as HTMLElement[];
+    const onClick = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement).closest('header a[href^="#"]');
+      if (!link) return;
 
-    if (sections.length === 0) return;
+      const now = Date.now();
+      clicksRef.current.push(now);
+      clicksRef.current = clicksRef.current.filter(t => now - t < WINDOW_MS);
 
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const id = (entry.target as HTMLElement).id;
-        if (id === lastSecRef.current) continue;
-        lastSecRef.current = id;
-
-        const now = Date.now();
-        changesRef.current.push(now);
-        changesRef.current = changesRef.current.filter(t => now - t < WINDOW_MS);
-
-        if (changesRef.current.length >= CHANGES_NEEDED) {
-          changesRef.current = [];
-          lastSecRef.current = "";
-          setActive(true);
-        }
+      if (clicksRef.current.length >= CLICKS_NEEDED) {
+        clicksRef.current = [];
+        setActive(true);
       }
-    }, { threshold: 0.3 });
+    };
 
-    sections.forEach(s => observer.observe(s));
-    return () => observer.disconnect();
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
   }, [active]);
 
   // ── fire canvas ────────────────────────────────────────────────────────
@@ -229,11 +216,8 @@ export default function ThisIsFine() {
             />
           </div>
 
-          {/* Dog + table */}
-          <div className="flex items-end gap-1 text-5xl leading-none">
-            <span>🐕</span>
-            <span className="text-3xl mb-1">☕</span>
-          </div>
+          {/* Dog at table */}
+          <DogAtTable />
         </div>
       )}
 
@@ -249,3 +233,57 @@ export default function ThisIsFine() {
     </>
   );
 }
+
+function DogAtTable() {
+  return (
+    <svg viewBox="0 0 110 130" width="140" height="164" xmlns="http://www.w3.org/2000/svg">
+      {/* Floppy ears (behind head) */}
+      <ellipse cx="30" cy="52" rx="13" ry="18" fill="#C4904E" />
+      <ellipse cx="80" cy="52" rx="13" ry="18" fill="#C4904E" />
+      <ellipse cx="30" cy="54" rx="7" ry="11" fill="#D4A86A" opacity="0.5" />
+      <ellipse cx="80" cy="54" rx="7" ry="11" fill="#D4A86A" opacity="0.5" />
+
+      {/* Head */}
+      <circle cx="55" cy="48" r="28" fill="#D4A86A" />
+
+      {/* Eyes — calm/content (slightly squinting) */}
+      <ellipse cx="45" cy="44" rx="5" ry="4" fill="white" />
+      <ellipse cx="65" cy="44" rx="5" ry="4" fill="white" />
+      <circle cx="45" cy="45" r="3" fill="#2C1A10" />
+      <circle cx="65" cy="45" r="3" fill="#2C1A10" />
+      {/* Gleam */}
+      <circle cx="46" cy="44" r="1" fill="white" />
+      <circle cx="66" cy="44" r="1" fill="white" />
+
+      {/* Muzzle */}
+      <ellipse cx="55" cy="57" rx="11" ry="8" fill="#E8C080" />
+      {/* Nose */}
+      <ellipse cx="55" cy="52" rx="4" ry="3" fill="#5C3010" />
+      {/* Smile */}
+      <path d="M 49 59 Q 55 65 61 59" stroke="#7A4820" fill="none" strokeWidth="1.8" strokeLinecap="round" />
+
+      {/* Body stub (visible above table) */}
+      <rect x="36" y="72" width="38" height="16" rx="6" fill="#C4904E" />
+
+      {/* Table top */}
+      <rect x="2" y="88" width="106" height="9" rx="3" fill="#8B6F47" />
+      {/* Table underline shadow */}
+      <rect x="2" y="95" width="106" height="2" rx="1" fill="#6B5230" opacity="0.5" />
+      {/* Table legs */}
+      <rect x="8"  y="97" width="7" height="28" rx="2" fill="#7A6040" />
+      <rect x="95" y="97" width="7" height="28" rx="2" fill="#7A6040" />
+
+      {/* Coffee mug on table */}
+      {/* Mug body */}
+      <rect x="68" y="72" width="22" height="16" rx="3" fill="#F5F0E8" />
+      {/* Coffee surface */}
+      <rect x="69" y="73" width="20" height="5" rx="2" fill="#6B3A1F" />
+      {/* Steam wisps */}
+      <path d="M 74 71 Q 72 66 74 61" stroke="#ccc" fill="none" strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
+      <path d="M 80 71 Q 78 66 80 61" stroke="#ccc" fill="none" strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
+      {/* Mug handle */}
+      <path d="M 90 76 Q 97 76 97 80 Q 97 85 90 85" stroke="#D0C8B8" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
