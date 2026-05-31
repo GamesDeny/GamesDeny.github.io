@@ -2,7 +2,7 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": false,
-  "homepage": "https://GamesDeny.github.io",
+  "homepage": "https://GamesDeny.github.io/portfolio",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
