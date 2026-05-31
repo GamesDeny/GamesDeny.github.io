@@ -17,7 +17,7 @@ const links = [
 ];
 
 export default function AdminSidebar() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const router = useRouter();
 
   const logout = async () => {
