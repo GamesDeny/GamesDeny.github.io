@@ -1,0 +1,23 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/easter-eggs/page": "app/admin/easter-eggs/page.js",
+  "/admin/experience/page": "app/admin/experience/page.js",
+  "/admin/i18n/page": "app/admin/i18n/page.js",
+  "/admin/languages/page": "app/admin/languages/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/projects/page": "app/admin/projects/page.js",
+  "/admin/skills/page": "app/admin/skills/page.js",
+  "/api/admin/auth/route": "app/api/admin/auth/route.js",
+  "/api/admin/easter-eggs/route": "app/api/admin/easter-eggs/route.js",
+  "/api/admin/education/route": "app/api/admin/education/route.js",
+  "/api/admin/experience/route": "app/api/admin/experience/route.js",
+  "/api/admin/i18n/route": "app/api/admin/i18n/route.js",
+  "/api/admin/languages/route": "app/api/admin/languages/route.js",
+  "/api/admin/projects/route": "app/api/admin/projects/route.js",
+  "/api/admin/skills/route": "app/api/admin/skills/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
+}

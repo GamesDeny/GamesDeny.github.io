@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/admin/layout,_N_T_/admin/easter-eggs/layout,_N_T_/admin/easter-eggs/page,_N_T_/admin/easter-eggs"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/admin/easter-eggs/__PAGE__",
+    "/admin/easter-eggs",
+    "/admin",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/dashboard/page": "/admin/dashboard",
+  "/admin/easter-eggs/page": "/admin/easter-eggs",
+  "/admin/experience/page": "/admin/experience",
+  "/admin/i18n/page": "/admin/i18n",
+  "/admin/languages/page": "/admin/languages",
+  "/admin/login/page": "/admin/login",
+  "/admin/page": "/admin",
+  "/admin/projects/page": "/admin/projects",
+  "/admin/skills/page": "/admin/skills",
+  "/api/admin/auth/route": "/api/admin/auth",
+  "/api/admin/easter-eggs/route": "/api/admin/easter-eggs",
+  "/api/admin/education/route": "/api/admin/education",
+  "/api/admin/experience/route": "/api/admin/experience",
+  "/api/admin/i18n/route": "/api/admin/i18n",
+  "/api/admin/languages/route": "/api/admin/languages",
+  "/api/admin/projects/route": "/api/admin/projects",
+  "/api/admin/skills/route": "/api/admin/skills",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}

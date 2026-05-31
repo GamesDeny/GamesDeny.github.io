@@ -1,0 +1,171 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/dashboard",
+      "regex": "^/admin/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/dashboard(?:/)?$"
+    },
+    {
+      "page": "/admin/easter-eggs",
+      "regex": "^/admin/easter\\-eggs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/easter\\-eggs(?:/)?$"
+    },
+    {
+      "page": "/admin/experience",
+      "regex": "^/admin/experience(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/experience(?:/)?$"
+    },
+    {
+      "page": "/admin/i18n",
+      "regex": "^/admin/i18n(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/i18n(?:/)?$"
+    },
+    {
+      "page": "/admin/languages",
+      "regex": "^/admin/languages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/languages(?:/)?$"
+    },
+    {
+      "page": "/admin/login",
+      "regex": "^/admin/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/login(?:/)?$"
+    },
+    {
+      "page": "/admin/projects",
+      "regex": "^/admin/projects(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/projects(?:/)?$"
+    },
+    {
+      "page": "/admin/skills",
+      "regex": "^/admin/skills(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/skills(?:/)?$"
+    },
+    {
+      "page": "/api/admin/auth",
+      "regex": "^/api/admin/auth(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/auth(?:/)?$"
+    },
+    {
+      "page": "/api/admin/easter-eggs",
+      "regex": "^/api/admin/easter\\-eggs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/easter\\-eggs(?:/)?$"
+    },
+    {
+      "page": "/api/admin/education",
+      "regex": "^/api/admin/education(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/education(?:/)?$"
+    },
+    {
+      "page": "/api/admin/experience",
+      "regex": "^/api/admin/experience(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/experience(?:/)?$"
+    },
+    {
+      "page": "/api/admin/i18n",
+      "regex": "^/api/admin/i18n(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/i18n(?:/)?$"
+    },
+    {
+      "page": "/api/admin/languages",
+      "regex": "^/api/admin/languages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/languages(?:/)?$"
+    },
+    {
+      "page": "/api/admin/projects",
+      "regex": "^/api/admin/projects(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/projects(?:/)?$"
+    },
+    {
+      "page": "/api/admin/skills",
+      "regex": "^/api/admin/skills(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/skills(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
