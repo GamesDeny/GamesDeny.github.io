@@ -74,7 +74,7 @@ export default function Hero({ doomModeEnabled = false, legoTardisEnabled = fals
             </div>
           ) : (
             <Image
-              src="/my_pick.jpg"
+              src="/portfolio/my_pick.jpg"
               alt={siteConfig.name}
               fill
               className="object-cover"
