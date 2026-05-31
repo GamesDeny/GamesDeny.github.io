@@ -3,7 +3,7 @@
 3:I[1182,["/portfolio/_next/static/chunks/0jxx~tz~ahmem.js","/portfolio/_next/static/chunks/0d3tkj33oycf2.js","/portfolio/_next/static/chunks/133rq7uo7d2_0.js","/portfolio/_next/static/chunks/0satdel7ot0ej.js","/portfolio/_next/static/chunks/0xx8pqflac0yr.js"],"default"]
 6:I[97367,["/portfolio/_next/static/chunks/0jxx~tz~ahmem.js","/portfolio/_next/static/chunks/0d3tkj33oycf2.js","/portfolio/_next/static/chunks/133rq7uo7d2_0.js"],"OutletBoundary"]
 7:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/portfolio/_next/static/chunks/0xx8pqflac0yr.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"Btgo-R21KsjAkhCvCtVda"}
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/portfolio/_next/static/chunks/0xx8pqflac0yr.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"3xEkVn5_OkeOl4J5FgglK"}
 4:{}
 5:"$0:rsc:props:children:0:props:serverProvidedParams:params"
 8:null
