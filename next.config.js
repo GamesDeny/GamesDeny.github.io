@@ -1,6 +1,5 @@
 const nextConfig = {
   /* config options here */
-  output: "export",
   distDir: "build",
   basePath: "/portfolio",
   images: {
