@@ -12,18 +12,18 @@
       "entrypoint": "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_0~h21sg.js",
       "matchers": [
         {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/admin(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
+          "regexp": "^\\/portfolio(?:\\/(_next\\/data\\/[^/]{1,}))?\\/admin(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
           "originalSource": "/admin"
         },
         {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/admin(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
+          "regexp": "^\\/portfolio(?:\\/(_next\\/data\\/[^/]{1,}))?\\/admin(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
           "originalSource": "/admin/:path*"
         }
       ],
       "wasm": [],
       "assets": [],
       "env": {
-        "__NEXT_BUILD_ID": "9V8DW8FbdpoT3kRAS2fa2",
+        "__NEXT_BUILD_ID": "Btgo-R21KsjAkhCvCtVda",
         "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "kt7kZ3V7OLqjdti5NkuhT+NuwK7CFFUbHlWBx8k8WZI=",
         "__NEXT_PREVIEW_MODE_ID": "289f9a4685c9e6a274b962892510e32c",
         "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "324761c0d39e161e70f7aec7db1778dde54d4ebeed7f922c6c6fc5f96839aa6c",
