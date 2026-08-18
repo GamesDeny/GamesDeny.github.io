@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="en" className={`${jetbrainsMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-text-primary font-mono">
         <I18nProvider>
-          <Navbar />
+          <Navbar siteName={name} />
           <main className="flex-1 pt-14">{children}</main>
           <Footer />
         </I18nProvider>
