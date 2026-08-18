@@ -70,7 +70,7 @@ export default function EasterEggsClient({ initial }: Readonly<{ initial: Easter
         ? { msg: `${key} ${next[key] ? "enabled" : "disabled"}`, type: "success" }
         : { msg: "save failed", type: "error" }
     );
-    if (!res.ok) setConfig(config); // revert on error
+    if (!res.ok) setConfig((prev) => ({ ...prev, [key]: !prev[key] })); // revert on error
   };
 
   return (
@@ -109,6 +109,7 @@ export default function EasterEggsClient({ initial }: Readonly<{ initial: Easter
               </div>
 
               <button
+                type="button"
                 onClick={() => toggle(egg.key)}
                 disabled={saving === egg.key}
                 className={`shrink-0 w-11 h-6 rounded-full border transition-colors duration-200 relative disabled:opacity-40 ${

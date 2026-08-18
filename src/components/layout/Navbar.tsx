@@ -123,6 +123,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3 md:hidden">
           <LocaleDropdown />
           <button
+            type="button"
             onClick={() => setMenuOpen((o) => !o)}
             className="text-muted hover:text-text-primary transition-colors"
           >

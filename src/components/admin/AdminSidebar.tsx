@@ -56,6 +56,7 @@ export default function AdminSidebar() {
       {/* Logout */}
       <div className="border-t border-border p-4">
         <button
+          type="button"
           onClick={logout}
           className="flex items-center gap-3 w-full font-mono text-sm text-muted hover:text-red-400 transition-colors duration-150"
         >
