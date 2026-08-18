@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   if (pathname === "/admin/login") return NextResponse.next();
 
   const cookie = request.cookies.get(COOKIE_NAME);
-  const password = process.env.ADMIN_PASSWORD;
+  const password = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
   if (!password || cookie?.value !== password) {
     const loginUrl = request.nextUrl.clone();

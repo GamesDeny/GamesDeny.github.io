@@ -73,5 +73,5 @@ scripts:
       availability:
         - BUILD
         - RUNTIME
-    - variable: ADMIN_PASSWORD
+    - variable: NEXT_PUBLIC_ADMIN_PASSWORD
       secret: PORTFOLIO_ADMIN_PASSWORD
