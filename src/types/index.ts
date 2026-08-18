@@ -15,7 +15,7 @@ export interface Project {
 }
 
 export interface WorkEntry {
-  id?: string;
+  id: string;
   company: string;
   role: LocalizedString;
   startDate: string;

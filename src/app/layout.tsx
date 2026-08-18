@@ -4,6 +4,7 @@ import "./globals.css";
 import { I18nProvider } from "@/i18n";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { siteConfig } from "@/config/contact";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -11,11 +12,9 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const name = process.env.NEXT_PUBLIC_NAME ?? "Portfolio";
-
 export const metadata: Metadata = {
-  title: `${name} — Software Engineer`,
-  description: `Personal portfolio of ${name}, Software Engineer.`,
+  title: `${siteConfig.name} — Software Engineer`,
+  description: `Personal portfolio of ${siteConfig.name}, Software Engineer.`,
 };
 
 export default function RootLayout({
@@ -27,7 +26,7 @@ export default function RootLayout({
     <html lang="en" className={`${jetbrainsMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-text-primary font-mono">
         <I18nProvider>
-          <Navbar siteName={name} />
+          <Navbar siteName={siteConfig.name} />
           <main className="flex-1 pt-14">{children}</main>
           <Footer />
         </I18nProvider>

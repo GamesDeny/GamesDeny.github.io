@@ -53,6 +53,21 @@ scripts:
       availability:
         - BUILD
         - RUNTIME
+    - variable: NEXT_PUBLIC_IS_AVATAR_LOCAL
+      value: "false"
+      availability:
+        - BUILD
+        - RUNTIME
+    - variable: NEXT_PUBLIC_AVATAR_PATH
+      value: "pick.jpg"
+      availability:
+        - BUILD
+        - RUNTIME
+    - variable: NEXT_PUBLIC_AVATAR_URL
+      value: "https://media.licdn.com/dms/image/v2/C5603AQEjKYJg_i7o5g/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1610956793849?e=1788393600&v=beta&t=HxKUr_9WohzqrAKDDtsiMeP5Vi6ySrLv7ZvuTDLgbv8"
+      availability:
+        - BUILD
+        - RUNTIME
     - variable: NEXT_PUBLIC_ROADMAP_USERNAME
       value: "gamesdeny"
       availability:
@@ -60,6 +75,3 @@ scripts:
         - RUNTIME
     - variable: ADMIN_PASSWORD
       secret: PORTFOLIO_ADMIN_PASSWORD
-      availability:
-        - BUILD
-        - RUNTIME

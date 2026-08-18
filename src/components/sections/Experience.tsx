@@ -12,15 +12,20 @@ interface ExperienceProps {
   education: EducationEntry[];
 }
 
-export default function Experience({ experience, education }: Readonly<ExperienceProps>) {
+export default function Experience({
+  experience,
+  education,
+}: Readonly<ExperienceProps>) {
   const { t, locale } = useI18n();
 
   return (
     <section id="experience" className="py-24 px-6 md:px-12 lg:px-24">
       <div className="max-w-3xl mx-auto">
-        <SectionTitle title={t.experience.title} subtitle={t.experience.subtitle} />
-
-        /* TODO refactor this because entry.id may not be reliable */
+        <SectionTitle
+          title={t.experience.title}
+          subtitle={t.experience.subtitle}
+        />
+        {/* TODO refactor this because entry.id may not be reliable */}
         {/* Work */}
         <h3 className="text-xs font-mono text-muted uppercase tracking-widest mb-8">
           {t.experience.work}
@@ -36,19 +41,26 @@ export default function Experience({ experience, education }: Readonly<Experienc
                   <h4 className="font-mono font-bold text-text-primary">
                     {localized(entry.role, locale)}
                   </h4>
-                  <p className="font-mono text-accent text-sm">{entry.company}</p>
+                  <p className="font-mono text-accent text-sm">
+                    {entry.company}
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-mono text-xs text-muted">
                     {entry.startDate} — {entry.endDate ?? t.experience.present}
                   </p>
-                  <p className="font-mono text-xs text-muted">{entry.location}</p>
+                  <p className="font-mono text-xs text-muted">
+                    {entry.location}
+                  </p>
                 </div>
               </div>
 
               <ul className="space-y-1.5 mb-4">
                 {localizedArray(entry.bullets, locale).map((b, j) => (
-                  <li key={entry.id} className="font-mono text-sm text-text-secondary flex gap-2">
+                  <li
+                    key={`${entry.id}-bullet-${j}`}
+                    className="font-mono text-sm text-text-secondary flex gap-2"
+                  >
                     <span className="text-accent shrink-0">–</span>
                     {b}
                   </li>
@@ -66,7 +78,6 @@ export default function Experience({ experience, education }: Readonly<Experienc
             </div>
           ))}
         </div>
-
         {/* Education */}
         <h3 className="text-xs font-mono text-muted uppercase tracking-widest mb-8">
           {t.experience.education}
@@ -79,9 +90,12 @@ export default function Experience({ experience, education }: Readonly<Experienc
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 mb-2">
                 <div>
                   <h4 className="font-mono font-bold text-text-primary">
-                    {localized(entry.degree, locale)} {localized(entry.field, locale)}
+                    {localized(entry.degree, locale)}{" "}
+                    {localized(entry.field, locale)}
                   </h4>
-                  <p className="font-mono text-accent text-sm">{entry.institution}</p>
+                  <p className="font-mono text-accent text-sm">
+                    {entry.institution}
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-mono text-xs text-muted">
@@ -96,7 +110,10 @@ export default function Experience({ experience, education }: Readonly<Experienc
               {entry.notes && (
                 <ul className="space-y-1.5">
                   {localizedArray(entry.notes, locale).map((n, j) => (
-                    <li key={entry.id} className="font-mono text-sm text-text-secondary flex gap-2">
+                    <li
+                      key={`${entry.id}-note-${j}`}
+                      className="font-mono text-sm text-text-secondary flex gap-2"
+                    >
                       <span className="text-accent shrink-0">–</span>
                       {n}
                     </li>

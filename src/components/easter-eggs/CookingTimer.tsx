@@ -15,12 +15,17 @@ export default function CookingTimer() {
   const [phase, setPhase]         = useState<Phase>("spinning");
   const [countdown, setCountdown] = useState(3);
   const [steamIdx, setSteamIdx]   = useState(0);
+  const [mounted, setMounted]     = useState(false);
 
   // mouse-spin tracking refs (no re-render needed)
   const accumulatedRef  = useRef(0);   // total radians turned (absolute)
   const directionRef    = useRef(0);   // +1 CW, -1 CCW, 0 undecided
   const lastAngleRef    = useRef<number | null>(null);
   const idleTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // ── trigger: 3 complete mouse circles ──────────────────────────────────────
   useEffect(() => {
@@ -128,7 +133,7 @@ export default function CookingTimer() {
     };
   }, [active, phase]);
 
-  if (!active) return null;
+  if (!active || !mounted) return null;
 
   const hour = new Date().getHours();
   const isBreakfast = hour >= 5  && hour < 12;

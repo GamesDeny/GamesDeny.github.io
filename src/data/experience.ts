@@ -2,6 +2,7 @@ import type { WorkEntry } from "@/types";
 
 const experience: WorkEntry[] = [
   {
+    id: "acme-corp-senior-software-engineer",
     company: "Acme Corp",
     role: { en: "Senior Software Engineer", it: "Ingegnere Software Senior" },
     startDate: "Jan 2023",
@@ -22,6 +23,7 @@ const experience: WorkEntry[] = [
     skills: ["TypeScript", "Kafka", "GraphQL", "AWS"],
   },
   {
+    id: "startup-xyz-software-engineer",
     company: "Startup XYZ",
     role: { en: "Software Engineer", it: "Ingegnere Software" },
     startDate: "Mar 2021",
