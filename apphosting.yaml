@@ -7,7 +7,16 @@ runConfig:
   cpu: 1
   memoryMiB: 512
 
+scripts:
+  buildCommand: npm run build
+  runCommand: npm start
+
 # Environment variables and secrets.
+  # Configure environment variables.
+  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
+  # Grant access to secrets in Cloud Secret Manager.
+  # You can create secrets with the CLI command `firebase apphosting:secrets:set <secretName>`.
+  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
   env:
     - variable: NEXT_PUBLIC_NAME
       value: "Francesco Pio Montrano"
@@ -54,17 +63,3 @@ runConfig:
       availability:
         - BUILD
         - RUNTIME
-# env:
-  # Configure environment variables.
-  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
-  # - variable: MESSAGE
-  #   value: Hello world!
-  #   availability:
-  #     - BUILD
-  #     - RUNTIME
-
-  # Grant access to secrets in Cloud Secret Manager.
-  # You can create secrets with the CLI command `firebase apphosting:secrets:set <secretName>`.
-  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
-  # - variable: MY_SECRET
-  #   secret: mySecretRef
