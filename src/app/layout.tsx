@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/i18n";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { siteConfig } from "@/config/contact";
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains",
-  display: "swap",
-});
+// Using system monospace fonts instead of Google Fonts for better Firebase App Hosting compatibility
 
 export const metadata: Metadata = {
   title: `${siteConfig.name} — Software Engineer`,
@@ -23,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jetbrainsMono.variable} h-full antialiased`}>
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-background text-text-primary font-mono">
         <I18nProvider>
           <Navbar siteName={siteConfig.name} />

@@ -12,8 +12,8 @@
   --color-text-secondary: #9ca3af;
 
   /* Font */
-  --font-mono: var(--font-jetbrains), "Fira Code", "Cascadia Code", monospace;
-  --font-sans: var(--font-jetbrains), "Fira Code", monospace;
+  --font-mono: "Fira Code", "Cascadia Code", "JetBrains Mono", "Monaco", "Menlo", monospace;
+  --font-sans: "Fira Code", "Cascadia Code", "JetBrains Mono", "Monaco", "Menlo", monospace;
 
   /* Keyframes */
   --animate-fade-up: fadeUp 0.6s ease forwards;
